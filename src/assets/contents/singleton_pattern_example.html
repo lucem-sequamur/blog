@@ -1,0 +1,18 @@
+<p>This is a thread safe, lazy load singleton example:</p>
+<pre>public class Singleton {
+    private Singleton() { // make it private to prevent instantiation from outside
+        // some code for the constructor
+    }
+
+    private static class InsHolder { // Once getInstance() being called, this class will be loaded (Lazy)
+        private static final Singleton INSTANCE = new Singleton();
+    }
+
+    public static Singleton getInstance() {
+        return InsHolder.INSTANCE;
+    }
+}
+</pre>
+<p>The down side of the above code is you can’t throw exceptions on constructor.</p>
+<br>
+<a rel="nofollow" href="http://ift.tt/2dictK3"><img alt="" border="0" data-src="http://ift.tt/2ebSkvk" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2diboll" class="" style="display: inline-block;">

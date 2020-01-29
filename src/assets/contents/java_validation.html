@@ -1,0 +1,80 @@
+<p>By using EJB, validation can be processed automatically. However, this article talks about how to do it manually. I separate the whole procedure into 3 steps: Entity Bean Annotation, Processing Validation, and Unit Testing.</p>
+<h3>Entity Bean Annotation</h3>
+<p>You can tell how you want the fields&nbsp;of your entity beans to be validated by putting annotations on them.</p>
+<pre>import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+@Entity
+@Table(name = "student")
+public class Student implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    <strong>@NotNull</strong>
+    <strong>@Size(min = 2, max = 25)</strong>
+    private String name;
+
+    // getters and setters...
+}
+</pre>
+<p>The <strong>Bold Annotations</strong> are going to be used for validating the value of name field.</p>
+<h3>Processing Validation</h3>
+<p>In your functional class, such as a Service class, you can use Validator to validate the entity bean. It will process validation for the entire instance of the&nbsp;Entity and return all ConstraintViolations in a Set. In order to get all the elements of the Set, you need an Iterator.</p>
+<pre>import java.util.Iterator;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+
+public class StudentServices {
+
+    Validator validator; // the instance of validator is usually being injected, or passed in
+
+    public void validate(Student student){
+        Iterator&lt;ConstraintViolation&lt;Student&gt;&gt; errors = <strong>validator.validate(student)</strong>.iterator();
+        if (errors.hasNext()) {
+            ConstraintViolation&lt;Student&gt; violation = errors.next();
+            throw new RuntimeException(violation.getPropertyPath().toString() + ": " + violation.getMessage()); // property path is the field name of the entity where the value violates the constrain
+        }
+    }
+}
+</pre>
+<p>Validator can validate an&nbsp;instance of the Entity by using its (entity’s)&nbsp;constraint.</p>
+<h3>Unit Testing</h3>
+<p>This unit test shows how Validator being created, and if all have been done correctly, the test should pass.</p>
+<pre>import static org.junit.Assert.*;
+
+import javax.validation.Validation;
+import javax.validation.Validator;
+
+import org.junit.Before;
+import org.junit.Test;
+
+public class StudentServicesTest {
+
+    private StudentServices studentServices;
+
+    @Before
+    public void initTestCase() {
+        studentServices = new StudentServices();
+        studentServices.validator = <strong>Validation.buildDefaultValidatorFactory().getValidator()</strong>; // This is how a Validator being created
+    }
+
+    @Test(expected = RuntimeExeption.class)
+    public void validate() {
+        studentServices.validate(new Student()); // this instance of Student entity does not have a name (name field is null), which violates the @NotNull annotation on name field
+    }
+}
+</pre>
+<p>The message of thrown RuntimeExeption will be something like “<strong>name:</strong> …” because the property path was added when it’s been throwing out.</p>
+<br>
+<a rel="nofollow" href="http://ift.tt/2e5fpwa"><img alt="" border="0" data-src="http://ift.tt/2eCcA8t" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2e5hJTS" class="" style="display: inline-block;">

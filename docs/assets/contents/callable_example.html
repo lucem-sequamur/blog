@@ -1,0 +1,46 @@
+<pre>import java.util.Date;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+public class Caller {
+
+    // Initiate ExecutorService, and set thread pool size to 10
+    private final ExecutorService executor = Executors.newFixedThreadPool(10);
+
+    public static void main(final String args[]) {
+
+        final Caller caller = new Caller();
+        // Create MyCallable instance
+        final Callable&lt;String&gt; callable = caller.new MyCallable();
+
+        for (int i = 0; i &lt; 10; i++) {
+            // submit Callable tasks within the pool, similar to Thread.start() for Runnable
+            final Future&lt;String&gt; future = caller.executor.submit(callable);
+
+            // get future returns concurrently
+            new Thread(() -&gt; {
+                try {
+                    // Future.get() is a <strong>blocking</strong> method
+                    System.out.println(new Date() + "::" + future.get());
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+
+        caller.executor.shutdown();
+    }
+
+    class MyCallable implements Callable&lt;String&gt; {
+
+        @Override
+        public String call() throws Exception {
+            return Thread.currentThread().getName();
+        }
+    }
+
+}
+</pre>

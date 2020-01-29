@@ -1,0 +1,17 @@
+<p>First, you need an Eclipse IDE up and running.<br>
+Since GlassFish needs JDK, you need to add JDK into your Eclipse environment. Do the following to add it:</p>
+<ol>
+<li>Make sure you have JDK installed/unzipped on your computer. I like to just unzip it, so that I can have multiple versions of JDKs. Check my another article on how to <a href="http://ift.tt/2e5h6tv" target="_blank">Unzip JDK from installation package</a>.</li>
+<li>Go to Window -&gt; Preferences -&gt; Java -&gt; Installed JREs</li>
+<li>Click Add, then select Standard VM, and hit next</li>
+<li>Give the directory of your JDK to JRE home. It’ll list all the libraries, and in the JRE name, you should see it start with jdk, not jre. Then, click Finish</li>
+<li>Check the jdk which you just added, and apply</li>
+</ol>
+<p>Once you added JDK, still in Preferences window, go to Server -&gt; Runtime Environment, and click Add to start a wizard to setup the server.<br>
+If you haven’t ever installed GlassFish, you need to install GlassFish tools First. Note that, you can also install it in Eclipse Marketplace. Here, you go to Oracle folder, and select GlassFish tools. Hit next, it will start downloading and installation. While it’s installing the GlassFish tools, you can download GlassFish server if you haven’t had one. Here are the links for different versions: <a href="http://ift.tt/I2jbfL">GlassFish 3.1.2</a>, <a href="http://ift.tt/2e5iqwf">GlassFish 4.1.1</a>, or <a href="http://ift.tt/1F3D1Iz" target="_blank">Payara</a>.<br>
+After you successfully installed GlassFish tools and restart your Eclipse, go back to this wizard. Then, you will find GlassFish folder. Select a GlassFish version. Check Create a new local server. By creating a new local server (domain), you are prevented to mess arround with the original copy of your GlassFish server, so that you can always setup a new domain using this server.&nbsp;Hit next.<br>
+Name your server, and specify the GlassFish location, which is the glassfish folder of wherever you unziped your server files, e.g.&nbsp;<code>glassfish4.1.1\glassfish</code>. You may specify the Java location if you need one different to the default one (the one you set for Eclipse). Next.<br>
+Click on New Domain icon on the top right line, and set the Domain path to the one you just create. Configure the admin name and password (you can leave password blank, it’s just metter of production environment security). Debug port if for debuging the server (8009). Preserve sessions across redeployment will prevent losing sessions from redeployment (better to uncheck it). Use JAR to deploy is to use JAR instead of WAR, EAR etc (uncheck). Finish.</p>
+<p>Finally, you want to create a server by using the Server runtime environment you just set. to do that, switch Eclipse prespective to Java EE and select Servers tag. Right click to New -&gt; Server. Then you can create a server by using the runtime you’ve just created.</p>
+<br>
+<a rel="nofollow" href="http://ift.tt/2e5hbx1"><img alt="" border="0" data-src="http://ift.tt/2eCfFW4" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2e5kPav" class="" style="display: inline-block;">

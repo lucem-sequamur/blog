@@ -1,0 +1,39 @@
+As a replacement, Nashorn succeeded Rhino engine in JDK8 to provide performant JavaScript reflection. There are many real world products built in Java which have scripting portals for users to customize the system, e.g. ServiceNow (although it still uses Rhino by the time this article is written).<br>
+Before jumping into Java code, I just want make a very short intro to command line execution using <code>jjs</code>. Simply start <code>bin/jjs.exe</code> by typing <code>jjs</code> in command line after you got system path parameter set up.
+<br>
+<pre>$ jjs
+jjs&gt; exit()
+</pre>
+<h1>
+Start JavaScript engine in Java</h1>
+To evaluate JavaScript in Java, javax.script.ScriptEngine is used:
+<br>
+<pre>ScriptEngineManager factory = new ScriptEngineManager();
+ScriptEngine engine = factory.getEngineByName("JavaScript"); // Using default JS engine, i.e. Nashorn
+engine.eval("print('hello world!');"); // JS code is essentially a String in Java</pre>
+<h1>
+Invoke JavaScript Functions from Java</h1>
+Each ScriptEngine has its own namespace. (In JavaScript point of view, each ScriptEngine hosts one global scope.) Functions within it can run by normal JavaScript calls, as well as Java invocation:
+<br>
+<pre>engine.eval("function fun (name) {return 'hello ' + name;}; print(fun('Jianzhao'));");
+Invocable invocable = (Invocable) engine;
+Object result = invocable.invokeFunction("fun", "William");
+System.out.println(result + " : " + result.getClass());</pre>
+<h1>
+Invoke Java Method from JavaScript</h1>
+To successfully invoke any Java method, you need a full class name including package path, and should not violating Java security constraint:
+<br>
+<pre>package ca.ljz;
+
+import javax.script.*;
+
+public class Cls {
+&nbsp;&nbsp;&nbsp; public static void main(String[] args) throws Exception {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ScriptEngineManager factory = new ScriptEngineManager();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ScriptEngine engine = factory.getEngineByName("JavaScript");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; engine.eval("var Cls = Java.type('ca.ljz.Cls'); print(new Cls().meth('Will'));");
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;public String meth(String name) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return "hello "+ name;
+&nbsp;&nbsp;&nbsp; }
+}</pre>

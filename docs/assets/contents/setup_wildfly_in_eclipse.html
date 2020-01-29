@@ -1,0 +1,19 @@
+<p>First, you need an Eclipse IDE up and running.<br>
+Since WildFly needs JDK, you need to add JDK into your Eclipse environment. Do the following to add it:</p>
+<ol>
+<li>Make sure you have JDK installed/unzipped on your computer. I like to just unzip it, so that I can have multiple versions of JDKs. Check my another article on how to <a href="http://ift.tt/2e5h6tv" target="_blank">Unzip JDK from installation package</a>.</li>
+<li>Go to Window -&gt; Preferences -&gt; Java -&gt; Installed JREs</li>
+<li>Click Add, then select Standard VM, and hit next</li>
+<li>Give the directory of your JDK to JRE home. It’ll list all the libraries, and in the JRE name, you should see it start with jdk, not jre. Then, click Finish</li>
+<li>Check the jdk which you just added, and apply</li>
+</ol>
+<p>Once you added JDK, under Java EE perspective, select Servers tag. Right click on the blank area, then New -&gt; Server.<br>
+If you haven’t ever installed WildFly, you need to install WildFly&nbsp;tools First. Here, you go to JBoss by Red Hat&nbsp;folder, and select JBoss/WildFly&nbsp;tools. Hit next, it will start downloading and installation. While it’s installing the WildFly&nbsp;tools, you can download WildFly&nbsp;server if you haven’t had one. Here is&nbsp;the link for version 10.0.0.Final: <a href="http://ift.tt/2eCdkua">WildFly</a>.<br>
+After you successfully installed WildFly&nbsp;tools and restart your Eclipse, go back to this wizard. Then, you will find JBoss Community&nbsp;folder. Select the WildFly version of whichever you downloaded.&nbsp;Hit next. In this step, for a typical development, you want to select <code>local</code> and <code>Filesystem and shell operations</code>. Uncheck <code>Server lifecycle is externally managed</code>, and choose <code>Create new runtime</code> (if you just download WildFly, then this is the only option. Otherwise, you can select an exist one, which you can view the Runtime Details).<br>
+Next, name your server, and specify the WildFly Home Directory, which is the WildFly folder of wherever you unziped your server files, and it should contain the bin folder. Select Runtime JRE. By default, it will pick up the one your Eclipse is using. You can associate Java versions with JREs/JDKs by clicking on Environments. You can also add JREs/JDKs by clicking on Installed JREs. To select a Runtime JRE, you can ether select the java version which you’ve assoicated with a JRE/JDK as the Excution Environment, or directly select the actual JRE/JDK as the Alternate JRE. (If you are using lower version wildfly, you can select a higher version JDK. But no vice versa) The Server base directory is where you want to make a copy of the server, just like a domain in GlassFish. In base directory, the instance of your server specified files will be stored. The configuration file by default is standalone.xml, which stores the configurations of this server instance. Click on Next, and then Finish. Now, you have your WildFly server ready to run.</p>
+<p><b>Bonus Component:</b></p>
+<p>You’ll be probably asked to create user to login WildFly console at first time. Simply go to the bin folder and double click on add-user.bat. Then follow the propt to create a management user.<br>
+Note whenever it asks yes/no, type yes/no insteand of y/n. When it asks if you want to add the user to a group, just leave blank and hit Enter. When it asks if the user is going to be used for one AS process to connect to another AS process, you need to type no (unless you know what you are doing).</p>
+<p>Once you add a management user, reenter localhost:9990 to login with the user.</p>
+<br>
+<a rel="nofollow" href="http://ift.tt/2e5lvMK"><img alt="" border="0" data-src="http://ift.tt/2eCf4DJ" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2e5gRia" class="" style="display: inline-block;">

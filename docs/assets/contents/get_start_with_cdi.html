@@ -1,0 +1,79 @@
+<h2>
+CDI Quick Start</h2>
+CDI, or Welding is a mechanism to assemble components (classes, methods, properties). In other words, you don’t instantiate objects by yourself. It is done by the container, instead of doing&nbsp;<code>new Foo();</code>&nbsp;manually. The general concepts of CDI are also adopted by other Java standards, such as EJB.<br>
+<br>
+There are 2 steps to enable CDI:<br>
+<ol>
+<li>Specify where <a href="https://docs.oracle.com/javaee/7/tutorial/cdi-basic005.htm" target="_blank">injectable objects</a> are (and configure the container if not using default settings);</li>
+<li>Specify where to be injected.</li>
+</ol>
+Here is an example of injecting a repository class into a servlet class.<br>
+<h3>
+Step 1: Specify where injectable objects are</h3>
+To specify your injectable object, in this case, your repository class, you need to make it a managed bean by specifying its scope.* There are several <a href="https://docs.oracle.com/javaee/7/tutorial/cdi-basic008.htm" target="_blank">scopes</a> for managed beans. They control the behaviors of the beans, such as life cycle, the numbers of instances, etc.<br>
+See the <a href="https://github.com/ljzca/WebExample/blob/master/user-management/src/main/java/ca/sait/repository/UserRepository.java" target="_blank">example code</a>, you'll notice the <code>@RequestScoped</code> annotation is placed on the class level.<br>
+* Explicitly put <code>@default</code>&nbsp;can also make a java class a managed bean.<br>
+<h4>
+Configuration Options</h4>
+<div>
+As mentioned, it's possible to customize the bean configurations in order to change the detection scope of the container. It is an attribute in <a href="https://github.com/ljzca/WebExample/blob/master/user-management/src/main/webapp/WEB-INF/beans.xml" target="_blank">bean.xml</a> file called <code>bean-discovery-mode</code>. You don't need to create this file if you are using the default configuration, <code>annotated</code>. There are 2 other options: <code>all</code> and <code>none</code>.<br>
+<ul>
+<li><code>annotated</code>: all managed beans are looked up</li>
+<li><code>all</code>: all types (classes) are looked up</li>
+<li><code>none</code>: disable the look ups</li>
+</ul>
+<div>
+<h3>
+Step 2: Specify where to be injected</h3>
+</div>
+To inject an object, you need to place the <code>@inject</code> annotation to the field, attribute etc.<br>
+See the <a href="https://github.com/ljzca/WebExample/blob/master/user-management/src/main/java/ca/sait/servlets/LoginServlet.java" target="_blank">example code</a>, you'll find that there is no manual instantiating needed anymore.<br>
+<h2>
+Lifecycle</h2>
+Most CDI or EJB implementations manage those injectable objects or beans behind scene, e.g. pooling, passivation, activation (Stateful Session Bean), listening (Message-Driven Bean). Therefore, it is not common to manage lifecycle events in constructors. There are 2 lifecycle events wildly used with both CDI and EJB: <code>@PostConstruct</code> and <code>@PreDestroy</code>.<br>
+<ul>
+<li><code>@PostConstruct</code>: invoked before the first call</li>
+<li><code>@PreDestroy</code>: invoked before leaving the scope</li>
+</ul>
+See <a href="https://github.com/ljzca/WebExample/blob/master/user-management/src/main/java/ca/sait/repository/UserRepository.java" target="_blank">UserRepository</a>. Since the scope is within a request, right before the first call is made in line 122 in the <a href="https://github.com/ljzca/WebExample/blob/master/user-management/src/main/java/ca/sait/servlets/LoginServlet.java" target="_blank">LoginServlet</a>, <code>@PostConstruct</code>&nbsp;annotated method in&nbsp;<a href="https://github.com/ljzca/WebExample/blob/master/user-management/src/main/java/ca/sait/repository/UserRepository.java" target="_blank">UserRepository</a>&nbsp;is invoked, and <code>@PreDestroy</code>&nbsp;annotated method will be invoked after the request is sent back to a JSP and written to the client.<br>
+Code stub around line 122:<br>
+<pre>private String authUser(final String username, final String password) {
+&nbsp; &nbsp; final User dbUser = userRepository.findUser(username);
+&nbsp; &nbsp; ...
+}</pre>
+<div>
+Follow the link to find more information about lifecycle of <a href="https://docs.oracle.com/javaee/7/tutorial/cdi-basic014.htm" target="_blank">CDI</a> and <a href="https://docs.oracle.com/javaee/7/tutorial/ejb-intro007.htm" target="_blank">EJB</a>.</div>
+<h2>
+Deal with Ambiguous Derivations</h2>
+In the real world, it is very unlikely to inject the actual concrete classes with CDI. A problem then comes out with ambiguous derivations. If an interface is derived by many subclasses, you need to tell the container which one you want to use when injecting the object.<br>
+There are two ways of dealing with it:<br>
+<ol>
+<li>Use <code>@Named</code> annotation to give the type a CDI name</li>
+<li>Override <code>@Default</code> annotation</li>
+</ol>
+<h4>
+<code>@Named</code></h4>
+<code>@Named</code> annotation can be placed on the injectable type to give it a name value. At the injecting point, you just need to annotate&nbsp;<code>@Named</code>&nbsp;with the particular name. The following is an example:<br>
+<br>
+<pre>/* the interface used at injecting point */
+public interface Boo{}
+
+/* named class to be injected */
+@Named("Foo")
+public class Doo implements Boo{}
+
+public class Goo{
+
+&nbsp; &nbsp; /* a field to inject Doo */
+&nbsp; &nbsp;&nbsp;@Named("Foo")
+&nbsp; &nbsp;&nbsp;@Inject
+&nbsp; &nbsp; Boo doo;
+
+&nbsp; &nbsp; /* a method to inject Doo */
+&nbsp; &nbsp;&nbsp;@Inject
+&nbsp; &nbsp; public void setDoo(@Named("Foo") Boo doo){}
+}</pre>
+<h4>
+<code>@Default</code></h4>
+<code>@Default</code> is a default qualifier for any injectable type, which means this annotation will be implicitly applied to managed beans. For example, the&nbsp;<a href="https://github.com/ljzca/WebExample/blob/master/user-management/src/main/java/ca/sait/repository/UserRepository.java" target="_blank">UserRepository</a>&nbsp;class in the above sections has <code>@Default</code> annotation implicitly. However, since all the derivations have the same qualifier, it will confuse the container when injecting an interface with multiple derivations. To specify a particular class to inject with, you can define a&nbsp;<a href="https://github.com/ljzca/WebExample/blob/master/survey_website/src/main/java/sait/annotations/UserRepo.java" target="_blank">customized qualifier</a>, then use it at the <a href="https://github.com/ljzca/WebExample/blob/master/survey_website/src/main/java/sait/servlets/LoginServlet.java" target="_blank">injecting point</a>.*<br>
+* The linked project for explaining how qualifier works is different to the one used in the above sections.</div>

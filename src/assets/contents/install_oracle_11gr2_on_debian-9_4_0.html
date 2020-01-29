@@ -1,0 +1,112 @@
+This blog is mainly referring the steps provided by this <a href="https://askubuntu.com/questions/566734/how-to-install-oracle-11gr2-on-ubuntu-14-04" target="_blank">post</a> on <a href="https://askubuntu.com/" target="_blank">Ask Ubuntu</a>. However, Debian is still not Ubuntu, and has a little bit difference. The following instructions are assuming the machine has a clean installed Debian 9.4.0 environment.<br>
+<h2>
+Step 1: <a href="http://www.oracle.com/technetwork/database/database-technologies/express-edition/downloads/index.html" target="_blank">Download</a> Oracle Database Express Edition.</h2>
+<h2>
+Step 2: Instructions before install Oracle</h2>
+<ol>
+<li>Copy the downloaded file and paste it in home directory.</li>
+<li>Unzip using the command:<pre>unzip oracle-xe-11.2.0-1.0.x86_64.rpm.zip</pre>
+</li>
+<li>Install required packages using the command:<pre>sudo apt-get install alien libaio1 unixodbc bc</pre>
+</li>
+<li>Enter into the Disk1 folder using command:<pre>cd Disk1/</pre>
+</li>
+<li>Convert RPM package format to DEB package format (that is used by Ubuntu) using the command:<pre>sudo alien --scripts -d oracle-xe-11.2.0-1.0.x86_64.rpm</pre>
+</li>
+<li>Create the required chkconfig script using the command:<pre>sudo pico /sbin/chkconfig</pre>
+The pico text editor is started and the commands are shown at the bottom of the screen. Now copy and paste the following into the file and save:<pre>#!/bin/bash
+# Oracle 11gR2 XE installer chkconfig hack for Debian
+file=/etc/init.d/oracle-xe
+if [[ ! `tail -n1 $file | grep INIT` ]]; then
+    echo &gt;&gt; $file
+    echo '### BEGIN INIT INFO' &gt;&gt; $file
+    echo '# Provides: OracleXE' &gt;&gt; $file
+    echo '# Required-Start: $remote_fs $syslog' &gt;&gt; $file
+    echo '# Required-Stop: $remote_fs $syslog' &gt;&gt; $file
+    echo '# Default-Start: 2 3 4 5' &gt;&gt; $file
+    echo '# Default-Stop: 0 1 6' &gt;&gt; $file
+    echo '# Short-Description: Oracle 11g Express Edition' &gt;&gt; $file
+    echo '### END INIT INFO' &gt;&gt; $file
+fi
+update-rc.d oracle-xe defaults 80 01</pre>
+</li>
+<li>Change the permission of the chkconfig file using the command:<pre>sudo chmod 755 /sbin/chkconfig</pre>
+</li>
+<li>Set kernel parameters. Oracle 11gR2 XE requires additional kernel parameters which you need to set using the command:<pre>sudo pico /etc/sysctl.d/60-oracle.conf</pre>
+</li>
+<li>Copy the following into the file and save:<pre># Oracle 11g XE kernel parameters
+fs.file-max=6815744
+net.ipv4.ip_local_port_range=9000 65000
+kernel.sem=250 32000 100 128
+kernel.shmmax=536870912</pre>
+</li>
+<li>Verify the change using the command:<pre>sudo cat /etc/sysctl.d/60-oracle.conf</pre>
+</li>
+<li>You should see what you entered earlier. Now load the kernel parameters:<pre>sudo service procps restart</pre>
+</li>
+<li>Verify the new parameters are loaded using:<pre>sudo sysctl -q fs.file-max</pre>
+You should see the file-max value that you entered earlier.</li>
+<li>Set up <code>/dev/shm</code> mount point for Oracle. Create the following file using the command:<pre>sudo pico /etc/rc2.d/S01shm_load</pre>
+</li>
+<li>Copy the following into the file and save.<pre>#!/bin/sh
+case "$1" in
+start)
+    mkdir /var/lock/subsys 2&gt;/dev/null
+    touch /var/lock/subsys/listener
+    rm /dev/shm 2&gt;/dev/null
+    mkdir /dev/shm 2&gt;/dev/null
+    mount -t tmpfs shmfs -o size=2048m /dev/shm ;;
+*)
+    echo error
+    exit 1
+    ;;
+
+esac</pre>
+</li>
+<li>Change the permissions of the file using the command:<pre>sudo chmod 755 /etc/rc2.d/S01shm_load</pre>
+</li>
+<li>Now execute the following commands:<pre>sudo ln -s /usr/bin/awk /bin/awk
+sudo mkdir /var/lock/subsys
+sudo touch /var/lock/subsys/listener</pre>
+Now, Reboot Your System</li>
+</ol>
+<h2>
+Step 3: Install Oracle</h2>
+<ol>
+<li>Install the oracle DBMS using the command:<pre>sudo dpkg --install oracle-xe_11.2.0-2_amd64.deb</pre>
+</li>
+<li>Configure Oracle using the command:<pre>sudo /etc/init.d/oracle-xe configure</pre>
+</li>
+<li>Setup environment variables by editting your .bashrc file:<pre>pico ~/.bashrc</pre>
+</li>
+<li>Add the following lines to the end of the file:<pre>export ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
+export ORACLE_SID=XE
+export NLS_LANG=`$ORACLE_HOME/bin/nls_lang.sh`
+export ORACLE_BASE=/u01/app/oracle
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:$LD_LIBRARY_PATH
+export PATH=$ORACLE_HOME/bin:$PATH</pre>
+</li>
+<li>Load the changes by executing your profile:<pre>. ~/.bashrc</pre>
+</li>
+<li>Start the Oracle 11gR2 XE:<pre>sudo service oracle-xe start</pre>
+</li>
+<li>Add user YOURUSERNAME to group dba using the command:<pre>sudo usermod -a -G dba YOURUSERNAME</pre>
+</li>
+</ol>
+<h2>
+Step 4: Using the Oracle XE Command Shell</h2>
+<ol>
+<li>Start the Oracle XE 11gR2 server using the command:<pre>sudo service oracle-xe start</pre>
+</li>
+<li>Start command line shell as the system admin using the command:<pre>sqlplus sys as sysdba</pre>
+Enter the password that you gave while configuring Oracle earlier. You will now be placed in a SQL environment that only understands SQL commands.</li>
+<li>Create a regular user account in Oracle using the SQL command:<pre>create user USERNAME identified by PASSWORD;</pre>
+Replace USERNAME and PASSWORD with the username and password of your choice. Please remember this username and password. If you had error executing the above with a message about resetlogs, then execute the following SQL command and try again:<pre>alter database open resetlogs;</pre>
+</li>
+<li>Grant privileges to the user account using the SQL command:<pre>grant connect, resource to USERNAME;</pre>
+Replace USERNAME and PASSWORD with the username and password of your choice. Please remember this username and password.</li>
+<li>Exit the sys admin shell using the SQL command:<pre>exit;</pre>
+</li>
+<li>Start the commandline shell as a regular user using the command:<pre>sqlplus</pre>
+Now, you can run sql commands...</li>
+</ol>

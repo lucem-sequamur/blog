@@ -1,0 +1,80 @@
+This article will walk through the processes of setting up MySQL on Window and Linux (tested on Debian).<br>
+<h2>
+Windows Environment</h2>
+<br>
+<ol>
+<li>Download and unzip the MySQL non-installation package to {mysql} folder (can be anywhere)</li>
+<li>Open cmd in {mysql}/bin directory</li>
+<li>Create database without a password: mysqld --initialize-insecure --user=root --console</li>
+<li>Start up the database: mysqld --console (it will run on current cmd window, DO NOT close it)</li>
+<li>Open another cmd in the {mysql}/bin directory</li>
+<li>Login: mysql --user=root</li>
+<li>Change root user password: ALTER USER 'root'@'localhost' IDENTIFIED BY 'password';</li>
+<li>(Optional) Exit current session:&nbsp;exit</li>
+<li>(Optional) Login:&nbsp;mysql --user=root --password</li>
+<li>(Optional) Enter password: password</li>
+</ol>
+<br>
+The above steps will create data file in the default directory: {mysql}/data/. To undo everything till 3rd step, simply delete the {mysql}/data folder.<br>
+To use another folder to store the data files, open {mysql}/my-default.ini and find the line that starts with # datadir = . Put the full path of data folder there.<br>
+<h2>
+Linux Environment</h2>
+MySQL uses different default data directory to store the data files in Linux than in Windows, which, however, is the same directory used by the installation version in Linux (<code>sudo apt-get install mysql-server</code>).<br>
+1. If it asks to install the <code>libaio</code> dependency, run <code>sudo apt-get install libaio1</code><br>
+2. <a href="https://www.blogger.com/href=%22https://dev.mysql.com/doc/refman/5.7/en/server-configuration-defaults.html" target="_blank">my-default.cnf</a> (same as my-default.ini) can be found in <code>%MYSQL_HOME%/support-files/</code>.<br>
+3. Create <code>data</code> folder in <code>%MYSQL_HOME%</code> without <code>sudo</code> command. Execute <code>mkdir data</code><br>
+4. Under <code>%MYSQL_HOME%</code> run <code>sudo bin/mysqld --initialize-insecure --console --datadir=%MYSQL_HOME%/data/ --basedir=%MYSQL_HOME%</code> (replace <code>%MYSQL_HOME%</code> with its actual path)<br>
+<h3>
+Common operations</h3>
+<h4>
+startup.sh</h4>
+<div>
+If you put data in <code>%MYSQL_HOME%/data/</code>, then create a file <code>startup.sh</code> with the following statement and replace <code>%MYSQL_HOME%</code> to the path of the MySQL folder.</div>
+<pre>bin/mysqld -u root --datadir=%MYSQL_HOME%/data/ --basedir=%MYSQL_HOME%</pre>
+Put this file in <code>%MYSQL_HOME%</code> and run this file in <code>%MYSQL_HOME%</code> using <code>sudo bash startup.sh</code><br>
+<h4>
+shutdown.sh</h4>
+Create a file <code>shutdown.sh</code> with the following statement:
+<br>
+<pre>bin/<a href="https://dev.mysql.com/doc/refman/5.7/en/mysqladmin.html" target="_blank">mysqladmin</a> shutdown -u root -p</pre>
+Put this file in <code>%MYSQL_HOME%</code> and run this file in <code>%MYSQL_HOME%</code> using <code>sudo bash shutdown.sh</code><br>
+<h4>
+Change password for the first time</h4>
+<div>
+Because we used insecure initialization, the password is not set.</div>
+1. Start a new terminal or cmd window.<br>
+2. Go to <code>%MYSQL_HOME%/bin</code> folder and execute <code>./mysql -u root -p</code> or <code>./mysql --user=root -p</code> to login. (You may not need <code>-p</code>)<br>
+3. Change the password <code>ALTER USER 'root'@'localhost' IDENTIFIED BY 'NewPassword';</code><br>
+<h4>
+Quick setup for an application connection</h4>
+<div>
+It is not a good practice to just work with root. Applications usually connect to a certain database schema with a specific user other than root. The following instructions works good with either installation or non-installation version.</div>
+<div>
+1. Login root user. In bin folder, execute <code>./mysql -u root -p</code>, and enter password when prompt.</div>
+<div>
+2. Execute the following statement one by one:</div>
+<pre>CREATE USER 'admin'@'localhost' IDENTIFIED BY 'password';
+CREATE SCHEMA `admin_database`;
+GRANT ALL PRIVILEGES ON `admin_database`.* To 'admin'@'localhost';</pre>
+<h4>
+Eclipse Settings</h4>
+Then it’s good for eclipse or other IDE to connect. In Eclipse, go to window -&gt; preferences -&gt; data management -&gt; connectivity -&gt; driver definitions to setup the connection. The connector jar file can be downloaded at MySQL’s official website.<br>
+In my experience, the only problem I encountered was WAMP server being installed which caused me a lots hack. The solution is to change the port in %mysql%/my-default.ini file.<br>
+Notice that you may still find some deprecated MySQL official documents which is not marked as deprecated. If you want to do some research on it, start from looking into parameters of mysqld to find more.<br>
+<br>
+P.S. The reason I wrote this blog was that the instructions of database initialization in the documentation of MySQL at the time (2 yrs ago) didn't seems to work for me. However, right now, as of mysql-8.0.13, this new version works just fine. Initializing non-installation version is as easy as only typing one command line: MYSQL_HOME&gt;bin/mysqld --initialize --basedir=. --datadir=./data --console. It prints out a temporary password in console, and that can be used to do the first time login: MYSQL_HOME&gt;bin/mysql&nbsp;-u root -p<br>
+Start mysql server: MYSQL_HOME&gt;bin/mysqld --console<br>
+Shutdown server: MYSQL_HOME&gt;bin/mysqladmin -u root shutdown -p<br>
+Login to a particular database/schema:&nbsp;MYSQL_HOME&gt;bin/mysql --user=username schema_name -p<br>
+<br>
+P.P.S. The comment of mine is about MariaDB after apt install mysql<br>
+<div>
+<h2>
+Reference</h2>
+</div>
+<div>
+<a href="https://dev.mysql.com/doc/refman/5.7/en/binary-installation.html" target="_blank">2.2 Installing MySQL on Unix/Linux Using Generic Binaries</a><br>
+<a href="https://dev.mysql.com/doc/refman/5.7/en/server-options.html" target="_blank">6.1.4 Server Command Options</a><br>
+<a href="https://dev.mysql.com/doc/refman/5.7/en/starting-server.html" target="_blank">2.10.2 Starting the Server</a></div>
+P.S. I found mysql uses unix_socket plugin if installed using sudo apt install mysql-server. So basically you enter sudo mysql to login as root user. (sudo mysql = sudo mysql -u root). 
+https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-18-04

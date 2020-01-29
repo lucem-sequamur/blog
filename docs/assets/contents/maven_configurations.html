@@ -1,0 +1,264 @@
+In maven project, there is a pom.xml file to configure how the project is managed. This article will make a brief introduction to what this file looks like, how to configure it. In addition, I will give examples for some common uses.<br>
+<h3>
+pom.xml Header</h3>
+In general, maven header never changes across different projects. It looks like this:<br>
+<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xmlns="http://ift.tt/IH78KX" xmlns:xsi="http://ift.tt/ra1lAU"
+    xsi:schemaLocation="http://ift.tt/IH78KX http://ift.tt/HBk9RF"&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+... (here is where all maven configurations are placed)
+&lt;/project&gt;
+</pre>
+Model version is always 4.0.0 for maven 2 and 3.<br>
+<h3>
+Project Information</h3>
+<div>
+Project information tags describe what the project is, such as group id, artifact id and so on. Here is an example:</div>
+<pre>&lt;groupId&gt;ca.ljz&lt;/groupId&gt;
+&lt;artifactId&gt;example&lt;/artifactId&gt;
+&lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+&lt;packaging&gt;pom&lt;/packaging&gt;
+&lt;name&gt;example&lt;/name&gt;
+&lt;description&gt;this is an example project&lt;/description&gt;</pre>
+<div>
+<h3>
+Define Properties</h3>
+To define your own properties in a pom.xml file, you need to use&nbsp;<code>properties</code>&nbsp;tag:<br>
+<pre>&lt;properties&gt;
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+    &lt;project&gt;&lt;version&gt;1.0&lt;/version&gt;&lt;/project&gt;
+    &lt;java.version&gt;1.8&lt;/java.version&gt;
+&lt;/properties&gt;
+</pre>
+Once defining the properties, you can use EL to reference them in the rest part of this pom file, e.g.&nbsp;<code>${project.version}</code>&nbsp;or&nbsp;<code>${java.version}</code>. The above two styles of defining properties are exact the same.<br>
+<code>&lt;project.build.sourceEncoding&gt;</code> is a property used by maven for encoding purposes.</div>
+<h3>
+Inheritance</h3>
+Inheritance is for projects to inherit&nbsp;POM configurations (mainly for controlling the versions of dependencies, plugins, etc.) from a parent POM project. To make a project a pom project, it must be packaged as a pom project:<br>
+<pre>&lt;packaging&gt;pom&lt;/packaging&gt;
+</pre>
+To inherit from a pom project, derived projects need to specify the POM project:<br>
+<pre>&lt;parent&gt;
+    &lt;groupId&gt;ca.ljz&lt;/groupId&gt;
+    &lt;artifactId&gt;parent&lt;/artifactId&gt;
+    &lt;version&gt;1.0&lt;/version&gt;
+&lt;/parent&gt;
+</pre>
+To specify the information of dependencies and plugins and such to be inherited, management tags are used in the parent pom.xml. As a result, <code>&lt;version&gt;</code> tags are not necessary for derived pom.xml files, and will override if specified.<br>
+Example of <code>&lt;dependencyManagement&gt;</code>:<br>
+<pre>&lt;dependencyManagement&gt;
+&nbsp;&lt;dependencies&gt;
+&nbsp; &lt;dependency&gt;
+&nbsp; &nbsp;&lt;groupId&gt;com.google.code.gson&lt;/groupId&gt;
+&nbsp; &nbsp;&lt;artifactId&gt;gson&lt;/artifactId&gt;
+&nbsp; &nbsp;&lt;version&gt;2.3.1&lt;/version&gt;
+&nbsp; &lt;/dependency&gt;
+&nbsp;&lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;</pre>
+Example of &lt;pluginManagement&gt;:<br>
+<pre>&lt;build&gt;
+&nbsp;&lt;pluginManagement&gt;
+&nbsp; &lt;plugins&gt;
+&nbsp; &nbsp;&lt;plugin&gt;
+&nbsp; &nbsp; &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+&nbsp; &nbsp; &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+&nbsp; &nbsp; &lt;version&gt;3.6.0&lt;/version&gt;
+&nbsp; &nbsp;&lt;/plugin&gt;
+&nbsp; &lt;/plugins&gt;
+&nbsp;&lt;/pluginManagement&gt;
+&lt;/build&gt;</pre>
+Because plugins must to be in <code>&lt;build&gt;</code> tag, <code>&lt;pluginManagement&gt;</code> should also be in <code>&lt;build&gt;</code>.<br>
+<h4>
+Self Inheritance</h4>
+Within the non-pom projects, it's still possible to declare management tags, and to be inherited by itself, which usually for specifying dependencies or plugins that have a aggregated projects to contain them, for example,&nbsp;arquillian:<br>
+<pre>&lt;dependencyManagement&gt;
+&nbsp;&lt;dependencies&gt;
+&nbsp; &lt;dependency&gt;
+&nbsp; &nbsp;&lt;groupId&gt;org.jboss.arquillian&lt;/groupId&gt;
+&nbsp; &nbsp;&lt;artifactId&gt;arquillian-bom&lt;/artifactId&gt;
+&nbsp; &nbsp;&lt;version&gt;${version.arquillian_core}&lt;/version&gt;
+&nbsp; &nbsp;&lt;type&gt;pom&lt;/type&gt;
+&nbsp; &nbsp;&lt;scope&gt;import&lt;/scope&gt;
+&nbsp; &lt;/dependency&gt;
+&nbsp;&lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;
+
+&lt;dependencies&gt;
+&nbsp;&lt;dependency&gt;
+&nbsp; &lt;groupId&gt;org.jboss.arquillian.core&lt;/groupId&gt;
+&nbsp; &lt;artifactId&gt;arquillian-core-api&lt;/artifactId&gt;
+&nbsp; &lt;scope&gt;test&lt;/scope&gt;
+&nbsp;&lt;/dependency&gt;
+&nbsp;&lt;dependency&gt;
+&nbsp; &lt;groupId&gt;org.jboss.arquillian.junit&lt;/groupId&gt;
+&nbsp; &lt;artifactId&gt;arquillian-junit-container&lt;/artifactId&gt;
+&nbsp; &lt;scope&gt;test&lt;/scope&gt;
+&nbsp;&lt;/dependency&gt;
+&lt;/dependencies&gt;</pre>
+<h3>
+Aggregation</h3>
+To aggregate projects, you will need a pom packaged project to pull the other projects/modules together. Following shows the pom file:<br>
+<pre>&lt;modules&gt;
+    &lt;module&gt;project1&lt;/module&gt;
+    &lt;module&gt;project2&lt;/module&gt;
+&lt;/modules&gt;
+</pre>
+For aggregation, there is no need to config in each module. In most cases, aggregation and inheritance play together, so you need to combine the configurations for both purposes.<br>
+<h3>
+Plugin</h3>
+Plugins are components that work with maven to get the project to work. A similar concept is dependencies. In a nutshell, you may import dependency libraries in your java code, but plugins just work in the background. A perfect example of plugins is to specify a compiler (JDK) version for maven to compile your code:<br>
+<pre>&lt;build&gt;
+    &lt;plugins&gt;
+    &lt;plugin&gt;
+    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+    &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+    &lt;version&gt;3.6.0&lt;/version&gt;
+    &lt;configuration&gt;
+    &lt;source&gt;${java.version}&lt;/source&gt;
+    &lt;target&gt;${java.version}&lt;/target&gt;
+    &lt;/configuration&gt;
+    &lt;/plugin&gt;
+    &lt;/plugins&gt;
+&lt;/build&gt;</pre>
+<h3>
+Dependency</h3>
+As mentioned above, dependencies are libraries used in your project. You can search in&nbsp;<a href="http://search.maven.org/" target="_blank">Central Repository</a>&nbsp;to see what libraries are available there.&nbsp;To specify a dependency, use &lt;dependencies&gt; tag:<br>
+<pre>&lt;dependencies&gt;
+    &lt;dependency&gt;
+    &lt;groupId&gt;javax&lt;/groupId&gt;
+    &lt;artifactId&gt;javaee-api&lt;/artifactId&gt;
+    &lt;version&gt;7.0&lt;/version&gt;
+    &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+</pre>
+If you’re using application server to deploy your project, then you need to set <code>&lt;scope&gt;provided&lt;/scope&gt;</code> to indicate the particular dependencies will be provided by the container at run time.<br>
+Sometimes, you want to import both API and implementation. Here is an example:<br>
+<pre>&lt;dependency&gt;
+    &lt;groupId&gt;javax.persistence&lt;/groupId&gt;
+    &lt;artifactId&gt;persistence-api&lt;/artifactId&gt;
+    &lt;version&gt;1.0.2&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.hibernate&lt;/groupId&gt;
+    &lt;artifactId&gt;hibernate-entitymanager&lt;/artifactId&gt;
+    &lt;version&gt;4.3.6.Final&lt;/version&gt;
+    &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;exclusions&gt;
+    &lt;exclusion&gt;
+    &lt;groupId&gt;org.hibernate.javax.persistence&lt;/groupId&gt;
+    &lt;artifactId&gt;hibernate-jpa-2.1-api&lt;/artifactId&gt;
+    &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+</pre>
+In the above example, javax.persistence is an API and org.hibernate is the implementation. Another example can be fond <a href="http://ift.tt/2ddnDoa" target="_blank">here</a>. In addition, you can also make dependendies of aggregated projects in order to use their classes within this project.<br>
+A question about what versions of dependencies to choose for a particular Java EE container version was asked on stackoverflow. Follow this <a href="http://stackoverflow.com/questions/42044821/how-can-i-know-if-a-maven-dependency-is-supported-by-a-java-ee-web-container" target="_blank">link</a> to check it out.<br>
+<h3>
+Repository</h3>
+In most cases, you don't really need to configure the repositories. Maven by default uses <a href="http://search.maven.org/" target="_blank">Central Repository</a>, where maven can download dependent libraries. However, if you need to specify a repository other than this, there are 2 types of different repository types: <a href="https://maven.apache.org/guides/mini/guide-configuring-maven.html" target="_blank">Local</a> and <a href="https://maven.apache.org/guides/introduction/introduction-to-repositories.html" target="_blank">Remote</a>. The configurations are slightly different since local repositories are configured in <code>&lt;settings&gt;</code>, whereas remote repositories are configured in <code>&lt;repositories&gt;</code>. You can also setup <a href="https://maven.apache.org/guides/mini/guide-multiple-repositories.html" target="_blank">multiple repositories</a>.<br>
+<h3>
+Eclipse problem</h3>
+Sometimes, Eclipse doesn’t pick up<code>&lt;scope&gt;provided&lt;/scope&gt;</code>&nbsp;and it will give you an error on:<br>
+<pre>&lt;project xmlns="http://ift.tt/IH78KX"
+            xmlns:xsi="http://ift.tt/ra1lAU"
+            xsi:schemaLocation="http://ift.tt/IH78KX http://ift.tt/VE5zRx"&gt;</pre>
+and on&nbsp;<code>&lt;dependency&gt;</code>&nbsp;tag with the <code>&lt;scope&gt;</code>. If you reset your Eclipse, or simply delete .m2 folder (usually in your user&nbsp;document directory), Eclipse will create a new .m2 folder and problems gone. You may want to backup your project before reset Eclipse, and, you have to do some setups for&nbsp;&nbsp;Eclipse after reset it, e.g. jdk installation path, maven path, etc.<br>
+<h2>
+An example</h2>
+<pre>&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+<span class="Apple-tab-span" style="white-space: pre;"> </span>xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;"> </span>&lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;"> </span>&lt;groupId&gt;ca.ljz&lt;/groupId&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;"> </span>&lt;artifactId&gt;pi&lt;/artifactId&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;"> </span>&lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;"> </span>&lt;build&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">  </span>&lt;plugins&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">   </span>&lt;plugin&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">    </span>&lt;artifactId&gt;maven-assembly-plugin&lt;/artifactId&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">    </span>&lt;executions&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">     </span>&lt;execution&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">      </span>&lt;phase&gt;package&lt;/phase&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">      </span>&lt;goals&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">       </span>&lt;goal&gt;single&lt;/goal&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">      </span>&lt;/goals&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">     </span>&lt;/execution&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">    </span>&lt;/executions&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">    </span>&lt;configuration&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">     </span>&lt;descriptorRefs&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">      </span>&lt;descriptorRef&gt;jar-with-dependencies&lt;/descriptorRef&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">     </span>&lt;/descriptorRefs&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">     </span>&lt;archive&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">      </span>&lt;manifest&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">       </span>&lt;mainClass&gt;ca.ljz.pi.Main&lt;/mainClass&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">      </span>&lt;/manifest&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">     </span>&lt;/archive&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">    </span>&lt;/configuration&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">   </span>&lt;/plugin&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">   </span>&lt;plugin&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">    </span>&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">    </span>&lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">    </span>&lt;version&gt;3.6.1&lt;/version&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">    </span>&lt;configuration&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">     </span>&lt;source&gt;1.8&lt;/source&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">     </span>&lt;target&gt;1.8&lt;/target&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">    </span>&lt;/configuration&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">   </span>&lt;/plugin&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">  </span>&lt;/plugins&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;"> </span>&lt;/build&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;"> </span>&lt;dependencies&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">  </span>&lt;dependency&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">   </span>&lt;groupId&gt;com.pi4j&lt;/groupId&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">   </span>&lt;artifactId&gt;pi4j-core&lt;/artifactId&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">   </span>&lt;version&gt;1.1&lt;/version&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;">  </span>&lt;/dependency&gt;
+
+<span class="Apple-tab-span" style="white-space: pre;"> </span>&lt;/dependencies&gt;
+
+&lt;/project&gt;</pre>

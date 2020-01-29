@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css?family=Inder&display=swap');
+
+header {
+  display: flex;
+  background: url("../assets/background.jpg") no-repeat center;
+  background-size: 100%;
+}
+
+.logo {
+  align-self: center;
+  padding: 10px;
+}
+
+.title {
+  color: white;
+  font-family: 'Inder', sans-serif;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}

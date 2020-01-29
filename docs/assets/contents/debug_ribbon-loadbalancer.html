@@ -1,0 +1,8 @@
+When we get into micro service with Spring Cloud, with Eureka, the actual URL is usually hidden. In most of the time, we use application name for dynamic loading. Eureka discovery server is responsible for distributing the actual URLs by inquired application names.<br>
+I recently got a situation when using a Feign client where I got 404 back when the request was supposed to hit the end point. The Feign client setting is very typical (this particular one will actually loop back to its own controller):<br>
+<pre>@FeignClient("${spring.application.name}")
+public interface MyClient {
+&nbsp; @RequestMapping(method = RequestMethod.GET, value = "/path/{param}")
+&nbsp; ResponseEntity&lt;Resource&gt; getResource(@PathVariable("param") String param);
+}</pre>
+When I debug it, the instance of this interface can only show the URL with the application name. It didn't help much to know what URL it's actually using. I traced it and found that it will actually prepare an&nbsp;<code>com.netflix.client.config.IClientConfig</code> first. In&nbsp;<code>com.netflix.client.AbstractLoadBalancerAwareClient#executeWithLoadBalancer(final S request, final IClientConfig requestConfig)</code>, it is eventually used to get the actual URL through&nbsp;<code>com.netflix.loadbalancer.LoadBalancerContext#reconstructURIWithServer(Server server, URI original)</code>&nbsp;from discovery server. The returned value from&nbsp;<span style="font-family: monospace;">reconstructURIWithServer</span>&nbsp;is the <code>finalUri</code> that is actually used.

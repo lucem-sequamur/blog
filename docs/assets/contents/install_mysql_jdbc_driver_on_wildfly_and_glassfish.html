@@ -1,0 +1,43 @@
+First of, I found an article which explains how to install a jdbc driver on WildFly in a fancy way. However, I’m going to introduce an easy way to do it at the end. So let’s start with the one I found.<br>
+You may want to <a href="http://ift.tt/2e8CnBD">Initialize&nbsp;MySQL</a> to begin with.<br>
+<h3>
+Configure JDBC Driver on WildFly 8</h3>
+Used technologies in the tutorial:<br>
+<ul>
+<li>Wild Fly 8.2.0.Final (Tested on WildFly 10 and it worked)</li>
+<li>Mysql Connector 5.1.33 (Tested with MySQL Connector 5.1.39 and it worked)</li>
+</ul>
+<b>1. Create the jboss module</b><br>
+Enter in the file path <code>${EAP_HOME}/modules/system/layers/base</code> and create the directories <code>com/mysql/driver/main</code>.<br>
+Into the folder <code>main</code> copy the <a href="http://ift.tt/2dUomwa">driver</a> library jar, and create a file module.xml as showed in the sample below<br>
+<pre>&lt;module xmlns="urn:jboss:module:1.3" name="com.mysql.driver"&gt;
+    &lt;resources&gt;
+        &lt;resource-root path="mysql-connector-java-5.1.33.jar" /&gt;
+    &lt;/resources&gt;
+    &lt;dependencies&gt;
+        &lt;module name="javax.api"/&gt;
+        &lt;module name="javax.transaction.api"/&gt;
+    &lt;/dependencies&gt;
+&lt;/module&gt;
+</pre>
+For an explanation about the meaning of the fields take a look at Jboss Module <a href="http://ift.tt/2e8Bbhv" target="_blank">Documentation</a>.<br>
+<b>2. Register the module as driver with CLI.</b><br>
+Start the server from the directory <code>${EAP_HOME}/bin</code> and excute <code>./standalone.sh --server-config=${server-profile}</code><br>
+Start the management CLI by executing <code>./jboss-cli.sh</code> (if you’re using windows, you should do it in cmd. Go to <code>${EAP_HOME}/bin</code>, and execute <code>jboss-cli</code>)<br>
+Run the the command: <code>/subsystem=datasources/jdbc-driver=<b>mysql</b>:add(driver-name=<b>mysql</b>,driver-module-name=<b>com.mysql.driver</b>,driver-class-name=<b>com.mysql.jdbc.Driver</b>)”</code><br>
+If the operation is successful then the message below will be shown<br>
+<code>{"outcome" =&gt; "success"}</code><br>
+In addition, the code below should be added to standalone.xml<br>
+<pre>...
+&lt;driver name="mysql" module="com.mysql.driver"&gt;
+    &lt;driver-class&gt;com.mysql.jdbc.Driver&lt;/driver-class&gt;
+&lt;/driver&gt;
+...
+</pre>
+<h3>
+The easy way</h3>
+Login to WildFly web console, go to Deployments -&gt; add a managed deployment. Then you can choose any divers you would like to deploy.<br>
+<h3>
+How about GlassFish?</h3>
+For glassfish, these is no need to “install” the driver. before starting the server up, place the driver in the directory of <code>%{your domain folder}\lib</code>. Then you will be good to go. You can then add pool and datasource under Resources -&gt; JDBC within web console (add pool first, then ds). There are bugs with this module in GlassFish4. You may want to do it in GlassFish3 or Payara.<br>
+P.S. It seems if you reopen IDE, and do a clean startup of the server, then it will be ok.

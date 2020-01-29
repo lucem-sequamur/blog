@@ -1,0 +1,71 @@
+There are 2 levels of Generic Type: class level &amp; method level.<br>
+Class Level:<br>
+<pre>public class ExampleClass&lt;T&gt;{}
+</pre>
+Method Level:<br>
+<pre>public &lt;T&gt; ReturnType exampleMethod(ParameterType parameter){return null;}
+</pre>
+Generic Type works very much like any kind of variables. You need to declare them before using.&nbsp;The above Generic Type place holders <code>&lt;T&gt;</code>&nbsp;are the only places you can declare generic types. It means any “generic types” appear else where are not declarations, but references of <code>&lt;T&gt;</code>.<br>
+For example:<br>
+<code>public class&nbsp;ExampleClass&lt;T&gt; extends SuperClass&lt;T&gt;{}</code><br>
+The first <code>&lt;T&gt;</code> is declaration, and the second is just a&nbsp;reference. As an effect, you can’t have something like this:<br>
+Wrong:<br>
+<pre>public class ExampleClass&lt;T&gt; extends SuperClass&lt;<strong>T extends Type</strong>&gt;{}
+</pre>
+because if you want to bound a type parameter on a generic type, you have to do it while it’s declared, like this:<br>
+Right:<br>
+<pre>public class ExampleClass&lt;<strong>T extends Type</strong>&gt; extends SuperClass&lt;T&gt;{}
+</pre>
+Another trick with this example is, if <code>&lt;T&gt;</code> of <code>SuperClass</code>&nbsp;is bounded to a type in its own definition, the <code>&lt;T&gt;</code>&nbsp;of&nbsp;<code>ExampleClass</code>&nbsp;must narrow its type to fit the <code>&lt;T&gt;</code> of <code>SuperClass</code>.<br>
+Wrong:<br>
+<pre>public class SuperClass&lt;T extends Type&gt;{}
+public class ExampleClass&lt;<strong>T</strong>&gt; extends SuperClass&lt;T&gt;{}
+</pre>
+Right:<br>
+<pre>public class SuperClass&lt;T extends Type&gt;{}
+public class ExampleClass&lt;<strong>T extends Type</strong>&gt; extends SuperClass&lt;T&gt;{}
+</pre>
+For the <code>ExampleClass&lt;<strong>T</strong> extends <strong>Type</strong>&gt;</code>, <strong><code>T</code></strong> can also extend from a subclass of <strong><code>Type</code></strong> since subclass has an “is” relationship to its parent class.<br>
+<h4>
+super</h4>
+<code>super</code> is opposite to <code>extends</code>, and is commonly used with consumer pattern.<br>
+Wildcard extends:<br>
+<pre>List&lt;? extends T&gt;
+</pre>
+It indicates each element in the list is an&nbsp;<strong>instanceof</strong> <code>T</code>.<br>
+Wildcard super:<br>
+<pre>List&lt;? super T&gt;
+</pre>
+It means the type of each element <strong>equals</strong> the type of <code>T</code>, or the types of its parents.<br>
+*Search&nbsp;PECS (Producer Extends Consumer Super) for details about its usage.<br>
+<h4>
+Example of creating a Generic Type Array</h4>
+This sometime is used to create a sub array, but very rare.<br>
+<pre>public T[] createArray(T t, length){
+&nbsp; &nbsp; T[] array = (T[]) Array.newInstance(t.getClass(), length);
+}</pre>
+Or something like this:<br>
+<pre>public T[] createArray(Class&lt;T&gt; t, length){
+&nbsp; &nbsp; T[] array = (T[]) Array.newInstance(t, length);
+}</pre>
+<h4>
+Example of retrieving class type</h4>
+<div>
+This is a compile time generic type, so that it can get the actual type "String":</div>
+<pre>public abstract class SuperClass&lt;T&gt; {
+    private final Class&lt;T&gt; genericType;
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public AbstractEJB() {
+        this.genericType = ((Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+}
+public class DerivedClass extends SuperClass&lt;String&gt; {}</pre>
+<div>
+This is a run time generic type, so that it can't get the actual type. Instead, if you print out the Actual Type Argument, you will get a "T". It means the generic type can't figure out what type will be using at compile time, and expecting a type to be assigned during the program running. So the following code will raise error because "T" can't be cast to Class:</div>
+<pre>public abstract class SuperClass&lt;T&gt; {
+    private final Class&lt;T&gt; genericType;
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public AbstractEJB() {
+        this.genericType = ((Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+}
+public class DerivedClass&lt;T&gt; extends SuperClass&lt;T&gt; {}</pre>
+Notice that the above code would run properly in direct calls. In some case, if it is invoked by a container, e.g. JBoss, the container may actually use a proxy class of the DerivedClass, which means there will be one level extra to reach the generic super class. The code would be like this: <code>this.genericType = ((Class) ((ParameterizedType) getClass().getSuperClass().getGenericSuperclass()).getActualTypeArguments()[0]);</code>

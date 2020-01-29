@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Programming",
+    "tags": [
+      "Cloud",
+      "Design Pattern",
+      "Aspect Oriented Programming",
+      "RESTful API",
+      "Functional Programming",
+      "Maven",
+      "Testing",
+      "LibGDX",
+      "Lombok",
+      "Java",
+      "Groovy",
+      "JavaScript",
+      "HTML"
+    ]
+  },
+  {
+    "name": "Linux",
+    "tags": [
+      "Network",
+      "System Settings",
+      "Debian"
+    ]
+  },
+  {
+    "name": "Database",
+    "tags": [
+      "OracleDB",
+      "MySQL",
+      "Liquibase"
+    ]
+  },
+  {
+    "name": "Text Editor",
+    "tags": [
+      "Vim",
+      "Eclipse",
+      "NetBeans"
+    ]
+  }
+]

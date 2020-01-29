@@ -1,0 +1,247 @@
+AspectJ is an aspect-oriented programming (AOP) extension created at PARC for the Java programming language. - Wikipedia<br>
+<div>
+In fact, things like Servlet Filters, EJB interceptors, or even database triggers are all sharing the concept of AOP. This article will focus on AspectJ in particular. Personally, I feel AspectJ gives a every different view on how software can be written. A weird thing that I found was most AspectJ related documentations were quite old. But, since it's popular in many mordern frameworks such as Spring, I guess it's worth to learn.</div>
+<h3>
+How is an AspectJ project used by other projects as a library?</h3>
+<div>
+To develop an AspectJ project and make other projects to use it, you have to know how the aspects are applied to the targeted components. AspectJ uses bytecode manipulation mechanism to intervene&nbsp;certain life cycle events of java classes at <b>compile time</b>. Because of that, it wouldn't work if an AspectJ project is just being imported normally. Instead, it must be picked up at compile time to manipulate the bytecode when the targeted classes are generated. In fact, AspectJ has its own compiler, which could either be used standalone or work together with your chosen javac for jdk version control purposes.</div>
+<div>
+To prepare for the practice in the rest sections, you need to have&nbsp;<a href="http://www.eclipse.org/articles/Article-Introducing-AJDT/article.html" target="_blank">AspectJ Development Tools</a> (AJDT) installed on your Eclipse. Although, I'll introduce based on Eclipse, you can also develop AspectJ project with Intellij and NetBeans.<br>
+<h4>
+Eclipse plugin</h4>
+</div>
+<div>
+AJDT is an eclipse plugin. You can find <a href="http://www.eclipse.org/ajdt/downloads/index.php" target="_blank">multiple versions</a> of it. The latest one is <a href="http://download.eclipse.org/tools/ajdt/46/dev/update" target="_blank">4.6</a>&nbsp;(copy the url as an Eclipse repository to install).</div>
+<h4>
+Intellij setup</h4>
+<div>
+You can find an <a href="https://www.jetbrains.com/help/idea/2016.3/using-the-aspectj-compiler-ajc.html" target="_blank">introduction</a> of how to set up your Intellij to work with AspectJ.</div>
+<h4>
+NetBeans plugin</h4>
+<div>
+There is a third party plugin called <a href="http://plugins.netbeans.org/plugin/56882/aspectj-for-netbeans-umuc-swen-670" target="_blank">AspectJ-for-NetBeans</a> developed quite a while ago (I heard it was developed by one person, which is very impresive).</div>
+<h3>
+Build an AspectJ project</h3>
+<div>
+There are various ways to create an AspectJ project: you can simply create an AspectJ project from scratch; you can have an existing Java project to convert to an AspectJ project. The way I'm going to do it is to create a Maven AspectJ project. By doing so, I would be able to just install my project to a local or remote repository. When it turns to that other project needs to import this AspectJ project, it can be done by just configuring the Maven configurations.<br>
+<h4>
+Create a Maven AspectJ project</h4>
+<div>
+A Maven AspectJ project is a maven project with a few AspectJ related configurations to assist while going through compile phase. Therefore, a simple Maven project is good to go for this practice.</div>
+<div>
+Here is the initial <code>pom.xml</code> file I have (really nothing more than a simple initial pom file):</div>
+<pre>&lt;project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+&nbsp; &nbsp; xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+&nbsp; &nbsp; &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+&nbsp; &nbsp; &lt;groupId&gt;ca.ljz&lt;/groupId&gt;
+&nbsp; &nbsp; &lt;artifactId&gt;special-logger&lt;/artifactId&gt;
+&nbsp; &nbsp; &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+&lt;/project&gt;
+</pre>
+<div>
+By default, this project would not compile with AspectJ. To do that, we need to add:</div>
+<div>
+<ol>
+<li>aspectj-maven-plugin</li>
+<li>aspectjrt (AspectJ run time dependency)</li>
+</ol>
+</div>
+<div>
+Optional: properties are optional. I added the above plugins and dependencies&nbsp;in <code>&lt;pluginManagement&gt;</code> and <code>&lt;dependencyManagement&gt;</code> first, which can be added to <code>&lt;plugins&gt;</code> and <code>&lt;dependencies&gt;</code> directly.</div>
+<pre>&lt;properties&gt;
+&nbsp; &nbsp; &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+&nbsp; &nbsp; &lt;java.source-target.version&gt;1.8&lt;/java.source-target.version&gt;
+&nbsp; &nbsp; &lt;aspectj.version&gt;1.8.7&lt;/aspectj.version&gt;
+&lt;/properties&gt;
+&lt;build&gt;
+&nbsp; &nbsp; &lt;pluginManagement&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;plugins&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;plugin&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;version&gt;3.3&lt;/version&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;configuration&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;source&gt;${java.source-target.version}&lt;/source&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;target&gt;${java.source-target.version}&lt;/target&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;!-- IMPORTANT --&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;useIncrementalCompilation&gt;false&lt;/useIncrementalCompilation&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/configuration&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/plugin&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;plugin&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;artifactId&gt;aspectj-maven-plugin&lt;/artifactId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;version&gt;1.7&lt;/version&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;configuration&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;!-- OPTIONAL
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;showWeaveInfo&gt;true&lt;/showWeaveInfo&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; --&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;source&gt;${java.source-target.version}&lt;/source&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;target&gt;${java.source-target.version}&lt;/target&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;Xlint&gt;ignore&lt;/Xlint&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;complianceLevel&gt;${java.source-target.version}&lt;/complianceLevel&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;encoding&gt;${project.build.sourceEncoding}&lt;/encoding&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;!-- OPTIONAL
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;verbose&gt;true&lt;/verbose&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; --&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;!-- OPTIONAL
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;warn&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; constructorName,
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; packageDefaultMethod,
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; deprecation,
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; maskedCatchBlocks,
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; unusedLocals,
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; unusedArguments,
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; unusedImport
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/warn&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; --&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/configuration&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;executions&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;execution&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;!-- IMPORTANT --&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;phase&gt;process-sources&lt;/phase&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;goals&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;goal&gt;compile&lt;/goal&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;goal&gt;test-compile&lt;/goal&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/goals&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/execution&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/executions&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;dependencies&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;dependency&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;groupId&gt;org.aspectj&lt;/groupId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;artifactId&gt;aspectjtools&lt;/artifactId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;version&gt;${aspectj.version}&lt;/version&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/dependency&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/dependencies&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/plugin&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;/plugins&gt;
+&nbsp; &nbsp; &lt;/pluginManagement&gt;
+&nbsp; &nbsp; &lt;plugins&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;plugin&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;artifactId&gt;aspectj-maven-plugin&lt;/artifactId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;/plugin&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;!-- OPTIONAL
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;plugin&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;/plugin&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; --&gt;
+&nbsp; &nbsp; &lt;/plugins&gt;
+&lt;/build&gt;
+&lt;dependencyManagement&gt;
+&nbsp; &nbsp; &lt;dependencies&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;dependency&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;groupId&gt;org.aspectj&lt;/groupId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;artifactId&gt;aspectjrt&lt;/artifactId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;version&gt;${aspectj.version}&lt;/version&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;scope&gt;runtime&lt;/scope&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;/dependency&gt;
+&nbsp; &nbsp; &lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;
+&lt;dependencies&gt;
+&nbsp; &nbsp; &lt;dependency&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;groupId&gt;org.aspectj&lt;/groupId&gt;
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;artifactId&gt;aspectjrt&lt;/artifactId&gt;
+&nbsp; &nbsp; &lt;/dependency&gt;
+&lt;/dependencies&gt;
+</pre>
+<div>
+The Maven AspectJ project now is created. As we mentioned above, the project needs to be compiled with either ajc (AspectJ compiler) or both ajc and javac. Please refer to the comments in the above pom settings to figure out how to do it in either way.<br>
+<h4>
+Create an annotation (optional)</h4>
+Creating an annotation is not a must. But since it's a common practice, I just want to show how to work with annotations in AspectJ. So, create an annotation first. It can be something like this:</div>
+</div>
+<pre>package ca.ljz.annotations;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+@Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+@Target(java.lang.annotation.ElementType.METHOD)
+public @interface Log{
+    String prefix() default "";
+}
+</pre>
+The purpose of this annotation is to let user place it on a specific method to log. It doesn't sound like how most loggers work, but it's good for this example.<br>
+Other than using an annotation, AspectJ can also catch a predefined signature pattern, e.g. a method signature pattern such as set* or get* etc. But, when programming a library, it's very unlikely to use pattern matches in most case. The exceptions are setters and getters, etc.<br>
+<h4>
+Create an aspect</h4>
+In AspectJ, an aspect is a special entity contains the descriptions of when and how to deal with life cycle events of targeted java classes. The following code stub describes a log aspect for what we are doing:<br>
+<pre>package ca.ljz.aspects;
+
+import ca.ljz.annotations.Log;
+import org.aspectj.lang.reflect.MethodSignature;
+
+public aspect LogAspect {
+
+&nbsp; &nbsp; pointcut log() : execution(public * *(..)) &amp;&amp; @annotation(Log);
+
+&nbsp; &nbsp; before() : log() {
+&nbsp; &nbsp; &nbsp; &nbsp; System.out.println("enter "
+            + ((MethodSignature) thisJoinPoint.getSignature()).
+                getMethod().getAnnotation(Log.class).prefix()
+            + thisJoinPoint.getSignature());
+&nbsp; &nbsp; }
+
+&nbsp; &nbsp; after() : log() {
+&nbsp; &nbsp; &nbsp; &nbsp; System.out.println("exit "
+            + ((MethodSignature) thisJoinPoint.getSignature()).
+                getMethod().getAnnotation(Log.class).prefix()
+            + thisJoinPoint.getSignature());
+&nbsp; &nbsp; }
+}
+</pre>
+<div>
+Here is a list of the meanings of each part of the <code>pointcut</code> declaration.<br>
+<ul>
+<li><code>log()</code>: the identifier of this <code>pointcut</code>, which can be referred in advices</li>
+<li><code>execution</code>: the action of the target to be intercepted</li>
+<li><code>public</code>: the modifier of the target</li>
+<li>1st <code>*</code>: this star indicate that the return type can be anything</li>
+<li>2nd <code>*</code>: this is the name pattern of methods, which in this case, means any name</li>
+<li><code>(..)</code>: this refers to the parameter pattern, which in this case, means any parameter(s)</li>
+<li><code>&amp;&amp;</code>: this is an logic operator, which indicates both sides condition must satisfied</li>
+<li><code>@annotation(Log)</code>: this means that there must be a Log annotation</li>
+</ul>
+<code>before()</code> and <code>after()</code> are the time points to indicate when the advice should be executed.<br>
+To know more about AspectJ syntax, here are some useful links:<br>
+<ul>
+<li><a href="https://eclipse.org/aspectj/doc/next/adk15notebook/ataspectj-pcadvice.html" target="_blank">Pointcuts and advice</a></li>
+<li><a href="http://stackoverflow.com/questions/265680/aspectj-parameter-in-a-pointcut" target="_blank">Get parameter(s) in a pointcut</a></li>
+<li><a href="http://www.eclipse.org/aspectj/doc/released/progguide/language-interType.html" target="_blank">Add field and method into a class</a></li>
+</ul>
+<h4>
+Install the library</h4>
+There are several types of places you can install your library. Just to keep things as simple as possible, I'm just going to run a built-in maven phase: install. You can easily find it by right click on the project, and it's in <code>Run As</code> sub menu.</div>
+<h3>
+Import an AspectJ project</h3>
+<div>
+Like building an AspectJ project, to import an AspectJ project also requires to add/change to the AspectJ compiler. Depending on how you build your project, there are different ways to accomplish this.<br>
+<h4>
+Non-maven project</h4>
+For a non-maven project, you need to:<br>
+<ol>
+<li>Convert the Java project to AspectJ project (right click project -&gt; configure);</li>
+<li>Add the library into Project Build</li>
+<li>Add the library into AspectJ Build Inpath (project properties -&gt; AspectJ Build);</li>
+</ol>
+<h4>
+Maven project</h4>
+For a maven project, you need to:<br>
+<ol>
+<li>Configure the project into a Maven AspectJ project (see Create a Maven AspectJ project section);</li>
+<li>Add the library as a dependency;</li>
+<li>Add the library as an <code>&lt;aspectLibrary&gt;</code> into <code>&lt;configuration&gt;</code> in <code>aspectj-maven-plugin</code></li>
+</ol>
+<div>
+To add the library into <code>aspectj-maven-plugin</code> <code>&lt;configuration&gt;</code>, it needs to include <code>&lt;groupId&gt;</code> and <code>&lt;artifactId&gt;</code>. The aspect library is something like this:<br>
+<pre>&lt;aspectLibraries&gt;
+    &lt;aspectLibrary&gt;
+        &lt;groupId&gt;ca.ljz&lt;/groupId&gt;
+        &lt;artifactId&gt;special-logger&lt;/artifactId&gt;
+    &lt;/aspectLibrary&gt;
+&lt;/aspectLibraries&gt;
+</pre>
+In particular, to use this library, you just need to add&nbsp;<code>@Log</code> on any method. The project to import AspectJ library project can be either a jar or a war project.</div>
+</div>

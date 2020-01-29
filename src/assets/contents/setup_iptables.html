@@ -1,0 +1,40 @@
+<pre># Remote Web Server Solution
+
+# allow ping
+iptables -A INPUT -j ACCEPT -p icmp
+
+# allow internal packet (using localhost to relpace 127.0.0.1 will result putting 2 same lines as per iptables 1.6.0)
+iptables -A INPUT -j ACCEPT -p all --source 127.0.0.1
+
+# allow external tcp packet over port 22 (22 and ssh are interchangeable)
+iptables -A INPUT -j ACCEPT -p tcp --dport ssh
+
+# allow external tcp packet over port 80 (80 and http are interchangeable)
+iptables -A INPUT -j ACCEPT -p tcp --dport http
+
+# allow external tcp packet over port 443 (443 and https are interchangeable)
+iptables -A INPUT -j ACCEPT -p tcp --dport https
+
+# NEW ~ the packet is starting a new connection, or belongs to a connection that has not transfered packets in both directions.
+# ESTABLISHED ~ the packet belongs to a connection that has been transfering packets in both directions.
+# RELATED ~ the packet is starting a new connection, which is associated with an existing connection, e.g. transfering data over FTP, or ICMP errors.
+iptables -A INPUT -j ACCEPT -m state --state ESTABLISHED,RELATED
+
+# drop all packet (alternatively, 'iptables -A INPUT -j DROP -p all' can reject-with icmp-port-unreachable)
+iptables -A INPUT -j DROP -p all
+
+# By default, there are 3 chains: INPUT, FORWARD, OUTPUT, and 3 targets: ACCEPT, REJECT, DROP.
+# From top down of each chain, first matching will end exam, and do given target. If no match to the end, do ACCEPT.
+
+# Check if rules are flushed (no need to do anything but to wait, sometimes taking 3 minutes or longer)
+iptables -L -n -v --line-numbers
+
+# -L ~ list all chains
+# -n ~ show numeric value of the ports
+# -v ~ verbose
+# --line-numbers show line numbers
+# Drop the rule at line number 1 (first line) of INPUT chain:
+# iptables -D INPUT 1
+
+# Insert a rule to the 1st line of INPUT chain (and push all other rules downward):
+# sudo iptables -I INPUT 1 -j ACCEPT -p tcp --dport ftp</pre>

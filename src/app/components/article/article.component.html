@@ -1,0 +1,7 @@
+<div class="article" *ngIf="article">
+  <h2>{{article.topic | uppercase}}</h2>
+  <div><span>Date: </span>{{article.date | date:'mediumDate':'MT'}}</div>
+  <div [innerHTML]="article.content | async | srcRebase">
+  </div>
+  <button class="back" mat-button (click)="goBack()">Back</button>
+</div>

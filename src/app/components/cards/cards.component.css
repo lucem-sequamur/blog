@@ -1,0 +1,20 @@
+.article-card {
+  max-width: 300px;
+  margin: 8px;
+}
+
+.card-container {
+  display: flex;
+  flex-flow: row wrap;
+  margin-bottom: 65px;
+}
+
+/* .spacer {
+  flex: 1 1 auto;
+} */
+
+.search-bar {
+  position: fixed;
+  bottom: 0%;
+  z-index: 100;
+}

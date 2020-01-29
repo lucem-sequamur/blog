@@ -1,0 +1,10 @@
+Thanks to Mr. Mohamed Felfel's instruction, I eventually managed to remove BOMbs. Here are the steps:<br>
+<ol>
+<li>Open the UTF-8 BOM file with vi <code>vi {filename}</code> in terminal</li>
+<li>Use command <code>:setlocal nobomb</code> to remove BOM</li>
+<li>Save file with <code>:w</code></li>
+<li>Quit file with <code>:q</code></li>
+<li>Optionally, if you check the file in IDE with VCS, it will show no content change but the file format is changed from <code>UTF-8 BOM</code> to <code>UTF-8</code></li>
+</ol>
+<div>
+To check if there is a BOM, use command <code>:setlocal bomb?</code> in vi. If there is no BOM, it shows <code>nobomb</code>. If there is, it shows <code>bomb</code></div>

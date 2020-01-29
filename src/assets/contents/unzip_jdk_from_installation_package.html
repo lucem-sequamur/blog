@@ -1,0 +1,12 @@
+<ol>
+<li>Create destination folder where you can RWX (e.g. <code>C:\jdk8</code>)</li>
+<li>Download jdk exe from Oracle (e.g. jdk-8u72-windows-x64.exe)</li>
+<li>Unzip the tools.zip found inside it into the destination folder</li>
+<li>Open cmd.exe, run:</li>
+</ol>
+<pre>cd C:\jdk8
+for /r %x in (*.pack) do .\bin\unpack200 -r "%x" "%~dx%~px%~nx.jar"
+</pre>
+<p>This solution works for JDK 8 too, without the Admin authority.</p>
+<br>
+<a rel="nofollow" href="http://ift.tt/2e5hEPW"><img alt="" border="0" src="http://ift.tt/2eCdkKG" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2e5hdoD" class="" style="display: inline-block;">

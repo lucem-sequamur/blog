@@ -1,0 +1,79 @@
+<p>Mockito is a mock testing tool which can help developers to do testing without completing all functions. In this article, I’ll be writing some code to&nbsp;show how it works. To begin with, you need to build Mockito into your project. The following maven repository is the latest release version when I’m writing this article. To build project with maven, see&nbsp;<a href="http://ift.tt/2eCefuw">POM Confiurations</a>.</p>
+<pre>&lt;dependency&gt;
+    &lt;groupId&gt;org.mockito&lt;/groupId&gt;
+    &lt;artifactId&gt;mockito-core&lt;/artifactId&gt;
+    &lt;version&gt;1.10.19&lt;/version&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;
+</pre>
+<p>To make life easier, you may also want to statically import the following methods:</p>
+<pre>import static org.mockito.Mockito.*;
+</pre>
+<p>Next, choose a class that you want to mock up:</p>
+<pre>StudentDAO studentDAO = mock(StudentDAO.class);
+</pre>
+<p>In the above code, since studentDAO is mocked up by Mockito, this instance becomes a puppet. You can manipulate the output (return value) of any method in StudentDAO class by monitoring the input (parameter) in order to perform a mock test. The following code shows how to register a&nbsp;manipulation role, and use it.</p>
+<pre>@Test //this test case tests if the logic part in that method functioning correctly
+public void delete(){
+    Student student1 = new Student();
+    // set some properties to student1 which are meant to let it pass the logic part in StudentService().delete()
+<strong>    when(studentDAO.delete(student1)).thenReturn(true)</strong>; // this is how studentDAO.delete() being manipulated
+
+    AssertTrue(new StudentService().delete(student1));
+}
+</pre>
+<p>StudentService class stub:</p>
+<pre>// imports
+
+public class StudentService{
+
+    // some other variables and methods...
+
+    StudentDAO studentDAO;
+
+    public boolean delete(Student student){
+
+        // perform some logic which may cause a return of false, and stop deleting the given Student
+
+        return <strong>studentDAO.delete(student)</strong>; // this studentDAO.delete() method has been interfered to return true when student1 is passed in
+    }
+}
+</pre>
+<h3>Benefits of Mock Testing</h3>
+<p>Because of the ability of manipulate the return value of a method, it gives you the power to test your program based on assumptions. For example, you’ve had a class structure and method definitions, yet been implemented. The methods would return null value. Therefore, you can’t test other classes which depend on the functions that this class provides, if you just do the regular test. With mock testing, you can pretend you had those methods implemented by controlling the results. On the other hand, it also lets you to isolate the problems to what&nbsp;you are focusing on.</p>
+<h3>Other Commonly Used Methods</h3>
+<h4>verify</h4>
+<p>To verify if a method is being called or not, you can verify it.</p>
+<pre>public static &lt;T&gt; T verify(T mock) // verify if a certain method is called once
+public static &lt;T&gt; T verify(T mock, VerificationMode mode) // verify if a certain method is called certain time(s)
+</pre>
+<p>The above code are the method signatures of verify function. To use one of these methods, you need to mock a class, and run your test first. Then followed by verify method to check if the method is called. For example:</p>
+<pre>studentDAO = mock(StudentDAO.class);
+studentService.studentDAO = studentDAO;
+studentService.update();
+verify(studentDAO).update();
+</pre>
+<p>In this example, I want to test if studentDAO.update() is called by studentService.update(). If it is called, then test passed, otherwise, test would fail.</p>
+<h4>@Mock</h4>
+<p>Instead of doing something like this:</p>
+<pre>StudentDAO studentDAO = mock(StudentDAO.class);
+</pre>
+<p>with <code>@Mock</code> annotation, you can initialize mocked classes easier:</p>
+<pre>@Mock
+StudentDAO studentDAO;
+
+@Mock
+StudentService studentService;
+
+@Mock
+SomethingElse somethingElse;
+</pre>
+<p>Then, all you need to do is to initiate them at once:</p>
+<pre>MockitoAnnotations.initMocks(this);
+</pre>
+<h4>doThrow</h4>
+<p>If your mocking method has a void return type, then you have to reverse the <code>when-then</code> order. Following code shows how to let a void method throw an exception:</p>
+<pre>doThrow(new Exception()).when(studentService).update(new Student()); // update() is a void method
+</pre>
+<br>
+<a rel="nofollow" href="http://ift.tt/2e5iBrr"><img alt="" border="0" src="http://ift.tt/2eCfkCE" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2e5hd8f" class="deferred">

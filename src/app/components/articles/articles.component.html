@@ -1,0 +1,17 @@
+<mat-toolbar color="accent">
+  <mat-toolbar-row>
+    <mat-form-field class="search">
+      <input title="Search" type="text" matInput placeholder="Search" [(ngModel)]="query">
+    </mat-form-field>
+  </mat-toolbar-row>
+</mat-toolbar>
+<ul>
+  <!-- Here articles will be piped to searchArticles with user entered query. the Observable<Article[]> result will then be piped to async -->
+  <li *ngFor="let article of articles | searchArticles: query | async" (mouseenter)="onSelect(article)"
+      (mouseleave)="onSelect(article)">
+    <a routerLink="/detail/{{article.filepath}}">
+      {{article.topic}}
+    </a>
+  </li>
+</ul>
+<app-article *ngIf="selectedArticle" [article]="selectedArticle"></app-article>

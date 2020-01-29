@@ -1,0 +1,21 @@
+<p>This article introduces a way to save your money from renting the&nbsp;expensive server or paying for a static IP.</p>
+<p>Following steps is tested on&nbsp;TELUS router:</p>
+<ol>
+<li>Find out your Default Gateway by executing <code>ipconfig</code> in CMD;</li>
+<li>Type your default gateway IP address in a browser. Login as admin;</li>
+<li>Go to Firewall</li>
+<li>Set DMZ to your computer’s IP (or you can use Port Forwarding on the ports you need to use, e.g. 4848, 8080);</li>
+<li>Go to <a href="http://ip-lookup.net/">ip-lookup</a> and take a note of your public IPv4 address;</li>
+<li>Go to <a href="http://www.noip.com">no-ip</a> and register an account;</li>
+<li>Apply a hostname and point to your public IPv4 address;</li>
+<li>Login your router again</li>
+<li>Go to Advanced Setup</li>
+<li>At Dynamic DNS (DDNS) settings, choose no-ip and fill out all the information that you just registered on noip.com;</li>
+<li>At this point, you can access your computer from anywhere in the world by using the noip.com domain. However, if you want to use your own domain, simply add a CNAME record to your DNS</li>
+</ol>
+<p>If your router doesn’t support noip.com service, then you can use dnspod.com service. In this way, you need your own domain and use dnspod’s DNS service. Dnspod has APIs for you to update your DNS record. Although, you will need to write an app to monitor your home IP changes.</p>
+<p>Note: CNAME record will return an IP from the domain this record pointing. Whereas, URL/Framed URL will just redirect any request to the pointed URL, which is generally slower than CNAME. For setting them, CNAME does not include “http:// ” and URL/Framed URL will include it. For example:<br>
+CNAME: <code>.www.domain.com</code><br>
+URL/Framed URL: <code><a href="http://www.domain.com" rel="nofollow">http://www.domain.com</a></code></p>
+<br>
+<a rel="nofollow" href="http://ift.tt/2dUoZ99"><img alt="" border="0" data-src="http://ift.tt/2e8Bclz" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2dUownq" class="" style="display: inline-block;">

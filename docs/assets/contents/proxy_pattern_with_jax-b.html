@@ -1,0 +1,108 @@
+"In computer programming, the proxy pattern is a software design pattern. A proxy, in its most general form, is a class functioning as an interface to something else." - Wikipedia<br>
+In other words, particularly in java programming language practice, you can use&nbsp;<code>java.lang.reflect.Proxy</code> class to construct instance of an interface. This pattern is widely used in EAR projects, which contain multiple sub projects to be aggregated.<br>
+<h3>
+When and why do you want to adopt Proxy pattern with JAX-B?</h3>
+In a fashion of loosely coupled design, it is possible to get a set of <a href="https://github.com/ljzca/EARProjectExample/tree/master/my-store-interfaces/src/main/java/ca/sait/xml" target="_blank">interfaces without their concrete classes</a>&nbsp;because there's no multiple inheritance in java. If you want the entities to inherit from a base, there is no way of using concrete classes to bridge the persistence layer and presentation layer. To store and carry data to the persistence layer which is invisible to the presentation layer, you can either build another set of concrete classes or use proxy pattern. There are different concerns for both routes. I used the traditional one for my <a href="https://github.com/ljzca/demo/tree/looseCoupling" target="_blank">demo project looseCoupling branch</a>. Whereas, for the <a href="https://github.com/ljzca/EARProjectExample" target="_blank">EAR project assignment</a>, I got the code following the proxy pattern.<br>
+From my study, I found if you want use&nbsp;MOXy, you can only parse XML. Other frameworks don't support proxy pattern. Thus, if you need to use JSON, the traditional way is what you probably should go for.<br>
+<h3>
+A practice on Proxy pattern in parsing XML</h3>
+In order to do XML binding with a proxy pattern. There are 3 steps to do it:<br>
+<ol>
+<li>Setup <code>JAXBContextFactory</code>;</li>
+<li>Build an <code><a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-interfaces/src/main/java/ca/sait/xml/ObjectFactory.java" target="_blank">ObjectFactory</a></code>;</li>
+<li>Implement <code><a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-web/src/main/java/ca/sait/ws/rs/ProxyMessageBodyReader.java" target="_blank">MessageBodyReader</a></code> and <code><a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-web/src/main/java/ca/sait/ws/rs/ProxyMessageBodyWriter.java" target="_blank">MessageBodyWriter</a></code>.</li>
+</ol>
+<h4>
+1. Setup&nbsp;<code>JAXBContextFactory</code></h4>
+<div>
+To use MOXy, you need to add it into the project library. For maven, add the following to the <a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-interfaces/pom.xml" target="_blank"><code>pom.xml</code></a>:</div>
+<pre>&lt;dependency&gt;
+&nbsp; &nbsp; &lt;groupId&gt;org.eclipse.persistence&lt;/groupId&gt;
+&nbsp; &nbsp; &lt;artifactId&gt;org.eclipse.persistence.moxy&lt;/artifactId&gt;
+&nbsp; &nbsp; &lt;version&gt;2.6.4&lt;/version&gt;
+&lt;/dependency&gt;
+</pre>
+Define&nbsp;<code>javax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory</code> in&nbsp;<code><a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-interfaces/src/main/java/ca/sait/xml/jaxb.properties" target="_blank">jaxb.properties</a></code>&nbsp;and place this file along with your Models or ObjectFactory.<br>
+<h4>
+2. Build an&nbsp;<code>ObjectFactory</code></h4>
+Before building the&nbsp;<a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-interfaces/src/main/java/ca/sait/xml/ObjectFactory.java" style="font-family: monospace;" target="_blank">ObjectFactory</a>&nbsp;class, you should have some interfaces like <code>IUser</code> to be manipulated against:
+<br>
+<pre>@javax.xml.bind.annotation.XmlRootElement</pre>
+<pre>public interface IUser extends IModel {
+&nbsp; &nbsp; String getName();
+&nbsp; &nbsp; void setName(String name);
+}
+</pre>
+There are several ways to create an instance out of the interface, here is the route of using Proxy with an InvocationHandler. In this way, the instance to be generated will have a class signature something like this (example for <code>IUser</code>): <code>public class Proxy$1 extends Proxy implements IUser</code>. To implement the <code>InvocationHandler</code> interface, do the following:
+<br>
+<pre>import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+class InterfaceInvocationHandler implements InvocationHandler {
+    private Map&lt;String, Object&gt; values = new HashMap&lt;String, Object&gt;();
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        String methodName = method.getName();
+        if(methodName.startsWith("get"))
+            return values.get(methodName.substring(3));
+        else
+            values.put(methodName.substring(3), args[0]);
+        return null;
+    }
+}</pre>
+This implementation basically performs/mocks getters and setters of the properties and stores the values in a <code>HashMap</code>.<br>
+<pre>import java.lang.reflect.Proxy;
+@javax.xml.bind.annotation.XmlRegistry
+public class ObjectFactory {
+&nbsp; &nbsp; public User createUser() {
+&nbsp; &nbsp; &nbsp; &nbsp; return createInstance(User.class);
+&nbsp; &nbsp; }
+&nbsp; &nbsp; private &lt;T&gt; T createInstance(Class&lt;T&gt; anInterface) {
+&nbsp; &nbsp; &nbsp; &nbsp; return (T) Proxy.newProxyInstance(anInterface.getClassLoader(),
+            new Class[] {anInterface}, new InterfaceInvocationHandler());
+&nbsp; &nbsp; }
+}</pre>
+In the <code>ObjectFactory</code>, you can list as many models as you need. Although, they have to fit for your <code>InterfaceInvocationHandler</code>.<br>
+<h4>
+3. Implement&nbsp;<code><a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-web/src/main/java/ca/sait/ws/rs/ProxyMessageBodyReader.java" target="_blank">MessageBodyReader</a></code>&nbsp;and&nbsp;<code><a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-web/src/main/java/ca/sait/ws/rs/ProxyMessageBodyWriter.java" target="_blank">MessageBodyWriter</a></code></h4>
+<div>
+Based on my study, when building a REST service, there is no actual need for implementing the <code><a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-web/src/main/java/ca/sait/ws/rs/ProxyMessageBodyWriter.java" target="_blank">MessageBodyWriter</a></code>&nbsp;because the out going message can retrieve data from the interface models. As long as you specified&nbsp;<code>@Consumes(MediaType.APPLICATION_XML)</code>&nbsp;annotation to ether the method or class level of your REST service, JAX-B will automatically perform marshaling for the models. However, you do need to implement the&nbsp;<code><a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-web/src/main/java/ca/sait/ws/rs/ProxyMessageBodyReader.java" target="_blank">MessageBodyReader</a></code>&nbsp;and let it help processing the in coming message.</div>
+<div>
+As mentioned in above sections, since the <code>Proxy</code>&nbsp;class is the direct ancestor of the interface, you should let <code>MessageBodyReader</code> capture <code>Proxy</code> class (instead of doing it for each model classes) and do the parsing/unmarshaling before the message reach the certain REST method. It's like an implicit interceptor to be enabled for the method once you annotate <code>@Consumes(MediaType.APPLICATION_XML)</code>&nbsp;on the REST service method or class.</div>
+<pre>import java.io.IOException;
+import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.Provider;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
+@Provider
+@Consumes({ MediaType.APPLICATION_XML })
+@Produces({ MediaType.APPLICATION_XML })
+public class ProxyMessageBodyReader implements MessageBodyReader&lt;Proxy&gt; {
+&nbsp;&nbsp;@Override
+&nbsp;&nbsp;public boolean isReadable(Class type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+&nbsp;&nbsp;&nbsp;&nbsp;return type.getClass().isInstance(IModel.class);// the ancestor of IUser
+&nbsp;&nbsp;}
+&nbsp;&nbsp;@Override
+&nbsp;&nbsp;public Proxy readFrom(Class&lt;Proxy&gt; type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap&lt;String, String&gt; httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
+&nbsp;&nbsp;&nbsp;&nbsp;try {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final Unmarshaller unMarshaller = jaxbContext.createUnmarshaller();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return (Proxy) unMarshaller.unmarshal(entityStream);
+&nbsp;&nbsp;&nbsp;&nbsp;} catch (JAXBException e) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw new WebApplicationException(e.getMessage(), Status.INTERNAL_SERVER_ERROR);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;}
+}</pre>
+If you look closer to this code and the one in my assignment I linked to, you can see a slight difference on instantiating the <code>JAXBContext</code>. Unlike this one, it uses <a href="http://ljzca.blogspot.ca/2016/10/get-start-with-cdi.html" target="_blank">CDI</a>. However, they are doing the same thing.

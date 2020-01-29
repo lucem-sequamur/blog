@@ -1,0 +1,60 @@
+Winter project is an open source project using Apache License
+Version 2.0. It started in the Winter 2017, which was where its name came from.
+Winter Framework intended to make life easier for Java Web Development with
+Java EE environment. It helps developers to simplify common tasks such as
+Security and Persistence in an efficient, easy, and best possible ways while
+developing applications.<br>
+<div class="MsoNormal">
+<o:p></o:p></div>
+<div class="MsoNormal">
+The roadmap of the Winter framework includes 5 major parts:<o:p></o:p></div>
+<div class="MsoNormal">
+1. Winter Version Control: It can also be called Winter Parent,
+which essentially a Maven POM project used as a parent project, which controls the
+versions of dependencies that other Winter components use. It is important to
+make sure each module uses the same versions of dependencies so that there is
+no conflict between each other.<o:p></o:p></div>
+<div class="MsoNormal">
+2. Winter Core: Winter uses CDI API (JSR 299: Contexts and
+Dependency Injection for the JavaTM EE platform) as its default context and
+dependency injection framework, which means it typically needs to run with an application server,
+e.g. GlassFish, WildFly, etc. However, it has a light weight property file
+injection component which is called Winter Core. Other Winter components depend
+on it, and use it to inject properties and objects specified in the property
+files.<o:p></o:p></div>
+<div class="MsoNormal">
+3. Winter Security: Winter Security is the first up and running
+component has been developed for people to use. The main difference between
+Java EE security framework and Winter Security is the idea behind authorization
+control. Java EE security framework primarily is a role based authorization
+system. Methods or APIs are assigned to roles, and users who has the roles will
+be authorized. There is nothing wrong about this mechanism, but it is not
+natural. In other words, system does not know the workflows. It only knows when
+to let pass or stop. Winter Security marks workflow on method level. Instead of
+using configurational nor programmatical ways to control the authorization
+process, developers can hand out the authorization to the business side, and
+let whoever knows the business to take control of it.<o:p></o:p></div>
+<div class="MsoNormal">
+4. Winter Data API: Winter Data API will be the next major
+component to be developed per the roadmap. Inspired by Spring Data Framework, Winter
+Data API will be similar but less complex. The target is to provide an easy to
+use API which wraps JPA for developers to avoid boilerplate code for common
+CRUD tasks.<o:p></o:p></div>
+<div class="MsoNormal">
+5. Winter Common Utils: As in daily development, we always
+have small utils that are necessary but does not come with standard libraries.
+With Winter Core empowered, these utils now can be easier to use and
+configurable.<o:p></o:p></div>
+<!--EndFragment--><br>
+<div class="MsoNormal">
+So, if you are interested in this project, you can download
+it on <a href="https://github.com/ljzca/Winter">https://github.com/ljzca/Winter</a>.
+While I am writing this article, the current version of Winter Framework is 0.0.1-SNAPSHOT,
+which means it is still under development. Even though, it is a fast-growing
+project worth to give a try. Also, because it is open source, anyone can
+download the code and contribute to it. This project is being managed as most
+open source projects. To make your contributions, simply pick up an issue on its
+GitHub repository and fix it, then make a pull request to submit your code. If
+you find any bugs, you can also create an issue. If you know how to fix it, you
+can fix it by yourself. Otherwise, leave the issue open to let other developers
+fixing it.<o:p></o:p></div>

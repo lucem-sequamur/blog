@@ -1,0 +1,22 @@
+<mat-toolbar class="search-bar" color="accent">
+  <mat-toolbar-row>
+    <span class="spacer"></span>
+    <mat-form-field class="search">
+      <mat-icon aria-hidden="true" aria-label="Search Articles">search</mat-icon>
+      <input title="Search" type="text" matInput [(ngModel)]="query">
+    </mat-form-field>
+  </mat-toolbar-row>
+</mat-toolbar>
+<div class="card-container">
+  <mat-card *ngFor="let article of articles | searchArticles: query | async | async | displayCount: displayNum" class="article-card">
+    <a routerLink="/detail/{{article.filepath}}">
+      <mat-card-header>
+        <mat-card-title>{{article.topic}}</mat-card-title>
+        <mat-card-subtitle>{{article.date | date:'mediumDate':'MT'}}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <span [innerHTML]="article.content | async | snippet:140:'...'"></span>
+      </mat-card-content>
+    </a>
+  </mat-card>
+</div>

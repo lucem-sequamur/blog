@@ -1,0 +1,16 @@
+<p>Since your computer’s username and domain are not always associate with your GitHub settings, you may experience unrecognized committer problem while working with a team. It’s not a critical problem in most cases, but annoying. Here is how you can customize your name in an Eclipse environment with GitHub.</p>
+<h3>Default @author</h3>
+<p>Add&nbsp;<code>-Duser.name=Firstname Lastname</code> at the bottom of <code>eclipse.ini</code> file, which can be found in the Eclipse directory.</p>
+<h3>Default Author &amp; Committer</h3>
+<p>Go to Eclipse menu -&gt; Preferences -&gt; Team -&gt; Git -&gt; Configuration.&nbsp;Open configuration and add:</p>
+<pre>[user]
+name = Firstname Lastname
+email = Your email address
+</pre>
+<p>Or, you can add entries:</p>
+<pre>user.name = Firstname Lastname
+user.email = Your email address
+</pre>
+<p>If your email address matches the email address you registered on GitHub, it can be recognized.</p>
+<br>
+<a rel="nofollow" href="http://ift.tt/2e5hc4b"><img alt="" border="0" data-src="http://ift.tt/2eCeuWG" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2e5g294" class="" style="display: inline-block;">

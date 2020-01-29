@@ -1,0 +1,82 @@
+<p>Gson is a tool to convert between Java objects and JSON objects. Its usage with&nbsp;JSON is somewhat similar&nbsp;to the usage of JAX-B with XML (although JAX-B can also process JSON). This article will explain the basis of GSON in order to get a quick understanding of how it works for anyone who is new to GSON.</p>
+<h3>Maven Dependency</h3>
+<p>At the time this article is composed, the following GSON dependency is the latest release version.</p>
+<pre>&lt;dependency&gt;
+    &lt;groupId&gt;com.google.code.gson&lt;/groupId&gt;
+    &lt;artifactId&gt;gson&lt;/artifactId&gt;
+    &lt;version&gt;2.7&lt;/version&gt;
+&lt;/dependency&gt;
+</pre>
+<p>For more information about Maven configurations, see&nbsp;<a href="http://ift.tt/2eCefuw" target="_blank">POM Configurations</a>.</p>
+<h3>Serialize &amp; Deserialize</h3>
+<p>There are 2 steps for both Serialization and Deserialization with GSON: annotate the fieds, and process.</p>
+<h4>Annotation</h4>
+<p>To serialize or deserialize objects, you need first to annotate the fields of the java classes (most likely to be Entity Beans). The following code is an example of annotating field. Basically, this is all you need to do in most cases.</p>
+<pre>@Expose
+private String name;
+</pre>
+<p>There are 2 boolean arguments you can pass in for this annotation: serialize, deserialize. By default, they are both true, means you will include this annotated field in both processes. If serialize is false, when turning java object to json, this field will be ignored. On the other hand, if deserialize is false, when turning json to java, this field will be ignored. In addition, if you set both to be false, it’s same to not annotating <code>@Expose</code> on this field.</p>
+<p>If you would like to change the name of the fields in the JSON file, you can use <code>@SerializedName</code>. For example:</p>
+<pre>@SerializedName("n")
+private String name;
+</pre>
+<p>The following code shows an Entity class with GSON annotations.</p>
+<pre>import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+@Entity
+@Table(name = "student")
+public class Student implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    <strong>@Expose</strong>
+    private Long id;
+
+    @NotNull
+    @Size(min = 2, max = 25)
+    <strong>@Expose
+</strong>    <strong>@SerializedName("n")</strong>
+    private String name;
+
+    // getters and setters...
+}
+</pre>
+<p>From the above code stub, you can see that only&nbsp;field level annotation&nbsp;is needed.</p>
+<h4>Processing</h4>
+<p>To process conversion between Java object and JSON object, you can do the following.</p>
+<p>Converting from JSON to Java object:</p>
+<pre>Target targetObject = new GsonBuilder().create().fromJson(jsonBody, Target.class);
+</pre>
+<p>Converting from Java object to JSON:</p>
+<pre>String jsonBody = new GsonBuilder().create().toJson(targetObject);
+</pre>
+<p>In above code,&nbsp;Target is a class annotated and associated with the body of the JSON String: jsonBody. However, I omitted some middle processes of how to create a Gson instance.</p>
+<pre>GsonBuilder gb = new GsonBuilder();
+Gson g = gb.create();
+// then you can do g.toJson() or g.fromJson()
+</pre>
+<p>The GsonBuilder instance can accept some configs in order to customize the conversion.</p>
+<h3>Versioning</h3>
+<p>In order to do versioning, you can put @Since and @Until to the fields of the Java objects:</p>
+<pre>@Since(1.1)
+private String newStandard;
+
+@Until(0.9)
+private String oldStandard;
+</pre>
+<p>To make them work, you can configure the GsonBuilder:</p>
+<pre>GsonBuilder gb = new GsonBuilder();
+gb.setVersion(1.0);
+</pre>
+<p>Then, the Gson instance will process conversions based on the version.</p>
+<br>
+<a rel="nofollow" href="http://ift.tt/2eCbNnY"><img alt="" border="0" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred" data-src="http://ift.tt/2e5iwnN"></a> <img alt="" border="0" width="1" height="1" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred" data-src="http://ift.tt/2eCfWbu">

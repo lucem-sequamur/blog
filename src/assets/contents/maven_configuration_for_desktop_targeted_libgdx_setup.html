@@ -1,0 +1,115 @@
+By default, libGDX setup app uses Gradle as build tool to build a multi-module project for you. However, it is possible to simply build single-module project using Gradle or Maven. The following xml example shows how to configure Maven to do so.<br>
+<br>
+<pre>&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;ca.ljz.gdx&lt;/groupId&gt;
+    &lt;artifactId&gt;proj&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+
+    &lt;properties&gt;
+    &lt;java.version&gt;1.8&lt;/java.version&gt;
+    &lt;gdx.version&gt;1.9.6&lt;/gdx.version&gt;
+    &lt;/properties&gt;
+
+    &lt;build&gt;
+    &lt;plugins&gt;
+        &lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+        &lt;version&gt;3.7.0&lt;/version&gt;
+        &lt;configuration&gt;
+            &lt;source&gt;${java.version}&lt;/source&gt;
+            &lt;target&gt;${java.version}&lt;/target&gt;
+        &lt;/configuration&gt;
+        &lt;/plugin&gt;
+    &lt;/plugins&gt;
+    &lt;/build&gt;
+
+    &lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.badlogicgames.gdx&lt;/groupId&gt;
+        &lt;artifactId&gt;gdx&lt;/artifactId&gt;
+        &lt;version&gt;${gdx.version}&lt;/version&gt;
+    &lt;/dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.badlogicgames.gdx&lt;/groupId&gt;
+        &lt;artifactId&gt;gdx-backend-lwjgl&lt;/artifactId&gt;
+        &lt;version&gt;${gdx.version}&lt;/version&gt;
+    &lt;/dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.badlogicgames.gdx&lt;/groupId&gt;
+        &lt;artifactId&gt;gdx-platform&lt;/artifactId&gt;
+        &lt;version&gt;${gdx.version}&lt;/version&gt;
+        &lt;classifier&gt;natives-desktop&lt;/classifier&gt;
+    &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;
+</pre>
+The following is an example of Gradle build file (with groovy):
+<pre>
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
+        google()
+    }
+}
+
+plugins {
+    id 'groovy'
+}
+
+apply plugin: "eclipse"
+apply plugin: "idea"
+
+group 'ca.ljz.libgdx'
+version '1.0-SNAPSHOT'
+
+ext {
+    appName = "my-gdx-game"
+    gdxVersion = '1.9.9'
+    roboVMVersion = '2.3.6'
+    box2DLightsVersion = '1.4'
+    ashleyVersion = '1.7.0'
+    aiVersion = '1.8.0'
+    groovyVersion = '2.3.11'
+    junitVersion = '4.12'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    google()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+}
+
+dependencies {
+    compile "com.badlogicgames.ashley:ashley:$ashleyVersion"
+    compile "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
+//    compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+    compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+//    compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+//    compile "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
+//    compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
+//    compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+    compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+    compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+    testCompile "junit:junit:$junitVersion"
+}
+</pre>
+Note, the "com.badlogicgames.gdx:gdx-xxx-platform" dependencies contain "com.badlogicgames.gdx:gdx-xxx" dependencies, which is why those ones can be safely commented out.

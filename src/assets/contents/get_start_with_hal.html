@@ -1,0 +1,266 @@
+<div>
+HAL, short for "Hypertext Application Language", is an open specification describing a generic structure for RESTful resources. [1] Adopting HAL will make your API explorable, and its documentation easily discoverable from within the API itself. In short, it will make your API easier to work with and therefore more attractive to client/frontend developers. [2] This article will explore an HAL solution provided by Spring, and walk through an example to create APIs following HAL specification.</div>
+<h2>
+Prerequisites</h2>
+<div>
+As if you want to adopt HAL as your RESTful Web Service standard, you would probably already know how RESTful works, what JSON looks like, etc. To realize how the code in this blog works, you should know JPA and a bit of understanding on how frameworks work. If you are not familiar with frameworks, <a href="https://medium.com/@kevinbreezybrown/java-spring-framework-6d07c84d2af7#.6pekkzswp" target="_blank">Java Framework: Spring</a>&nbsp;may be helpful. It is written by my classmate Kevin Brown. He focuses more on Spring Framework itself, which is also the framework I am using in the rest of my blog.</div>
+<h2>
+What is an HAL solution?</h2>
+<div>
+As mentioned, HAL is a specification to describe RESTful structure. By itself, HAL does not come with an implementation. Therefore, to develop RESTful Web Services that follow HAL, developers can use some frameworks with HAL solutions. An HAL solution is a library that provides standard way to easily build RESTful Web Services.</div>
+<h2>
+Why to use Spring Framework?</h2>
+<div>
+There are many solutions that support HAL specification. However, Spring Framework provides a Java implementation, which is easy to understand, and suitable for different development needs.</div>
+<h2>
+Initialize a project</h2>
+<div>
+To start with, you need to initialize a Spring Project with libraries it needs. The easiest way is to use the Spring Initializr:</div>
+<div>
+<ol>
+<li>Go to <a href="https://start.spring.io/" target="_blank">Spring Initializr</a>.</li>
+<li>Under Dependencies section, search and add "Rest Repositories", "JPA", and "H2" dependencies.</li>
+<li>Click "Generate Project" button and save the project to the hard drive.</li>
+<li>Unzip the project and import it as a Maven project.</li>
+</ol>
+</div>
+<div>
+Congratulations, you are all set. It is time to work on the actual program.</div>
+<h2>
+Exam the project</h2>
+<div>
+Spring Initializr helps developers to generate Spring Boot Projects very easily. It uses Maven or Gradle build tools to automatically set up everything you need to start. I am not going to talk too much about Spring Framework itself. However, examining the current project structure might help understanding the magic behind the scene.</div>
+<div>
+In our project, before working on anything else, there are 2 most important things you want to know: <code>pom.xml</code> and the main class (<code>DemoApplication.java</code>).</div>
+<h3>
+<code>pom.xml</code></h3>
+<div>
+<code>pom.xml</code> file is in the root folder of the project. It contains project building information such as compiler version, dependencies, and so on. All the dependencies we selected are included in this file. For the rest of this blog, you don't really need to touch anything in this file. But if you are interested in project configurations, please check my blog: <a href="http://ljzca.blogspot.ca/2016/10/maven-configurations.html" target="_blank">Maven Configurations</a>.</div>
+<h3>
+The main class</h3>
+<div>
+The main class is where main method is located. If you didn't change the default settings when generating the project, the name of the main class should be <code>DemoApplication</code>. It is located in <code>src/main/java/com/example</code>. Open it, you will see the class is annotated as a spring boot application. You don't need to change anything in this class. You just need to know that the project entrance is here, and you want to run the application from this class.</div>
+<h2>
+Create domain classes</h2>
+<div>
+Here we will walk through an example of creating a very simple server side application to provide content in JSON form. The application is about a cell phone store management system. Basically, there are 2 types of content: Phones and Stores.</div>
+<div>
+Typical scenarios/functionalities would be:</div>
+<div>
+<ol>
+<li>Provide Store related API with JSON representation to perform CRUD operations. The Store domain class should include store id, name, address, phone number, and a list of stored phones.</li>
+<li>Provide Phone related API with JSON representation to perform CRUD operations. The Phone domain class should include id, brand name, model, quantity, and which store it belongs to.</li>
+<li>Store and Phone are mapped as one to many bi-dictionary relationship, i.e. one Store has many types of Phones, and one type of Phone belongs to only one Store.</li>
+</ol>
+</div>
+<div>
+The domain classes should look like the following.</div>
+<h3>
+<code>Store.java</code></h3>
+To ease development, domain classes are also JPA entities. Thus, they need annotations such as <code>@Entity</code>, <code>@Id</code>, and so on. Since this blog is mainly for introducing HAL, if you need more information about JPA annotations, please check Oracle's <a href="http://www.oracle.com/technetwork/java/javaee/tech/persistence-jsp-140049.html" target="_blank">JPA specification</a>&nbsp;(<a href="https://www.jcp.org/en/jsr/detail?id=220" target="_blank">JSR 220</a>).
+<br>
+<pre>package com.example.domain;
+
+import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+@Entity
+public class Store {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
+    private String name;
+    private String address;
+    private String phoneNum;
+
+    @OneToMany(mappedBy = "store")
+    private List&lt;Phone&gt; phones;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPhoneNum() {
+        return phoneNum;
+    }
+
+    public void setPhoneNum(String phoneNum) {
+        this.phoneNum = phoneNum;
+    }
+
+    public List&lt;Phone&gt; getPhones() {
+        return phones;
+    }
+
+    public void setPhones(List&lt;Phone&gt; phones) {
+        this.phones = phones;
+    }
+}</pre>
+<h3>
+<code>Phone.java</code></h3>
+<pre>package com.example.domain;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
+@Entity
+public class Phone {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
+    private String brand;
+    private String model;
+    private int quantity;
+
+    @ManyToOne
+    @JoinColumn(name = "store", nullable = false)
+    private Store store;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public Store getStore() {
+        return store;
+    }
+
+    public void setStore(Store store) {
+        this.store = store;
+    }
+}</pre>
+<h2>
+Create Repository Interfaces</h2>
+Spring provides some very easy to use APIs to simplify development, especially for HAL. However, it actually does a lot of things under the hood. Spring does not use your code directly. Instead, it reads your annotations, extensions, and generic types, and transfers them into dynamically generated proxies. Spring uses the proxies to provide data access, services, and web resources.<br>
+The nice thing is, even if you don't understand everything, it is OK to move on. So, Let us write some more code and I will explain these concepts accordingly with the code.
+<br>
+<h3>
+IStoreRepository.java</h3>
+<pre>package com.example.repository;
+
+import org.springframework.data.repository.PagingAndSortingRepository;
+import com.example.domain.Store;
+
+public interface IStoreRepository extends PagingAndSortingRepository&lt;Store, Integer&gt; {}</pre>
+As you can see in the above code, there is nothing in the interface. However, this interface tells Spring almost everything it needs to provide data access, services, and web resources.
+<br>
+<ol>
+<li>To extend PagingAndSortingRepository interface, it tells that IStoreRepository is a repository to work with JPA on data access.</li>
+<li>Paging and sorting do not only support paging and sorting, but also provide web resource of the domain class under HAL standard.</li>
+<li>Store and Integer are the domain class type and id type respectively. They are Entity and id types to be used by this repository to perform operations against database.</li>
+<li>By interpreting the annotations and properties of the domain class, this repository also knows how to generate the table in the database.</li>
+</ol>
+Next, we will create our IPhoneRepository in the same way.
+<br>
+<h3>
+IPhoneRepository</h3>
+<pre>package com.example.repository;
+
+import org.springframework.data.repository.PagingAndSortingRepository;
+import com.example.domain.Phone;
+
+public interface IPhoneRepository extends PagingAndSortingRepository&lt;Phone, Integer&gt; {}
+</pre>
+<h2>
+Check to see if it works</h2>
+We are going to add store and phone data into the database through the web APIs. Then we will check if they can be reviewed. Instead of writing a client by our own, we can use an application called Postman to create these data. Postman is a Chrome App to help us generating HTTP requests. In HAL standard, CRUD operations are mapped as follows:
+<br>
+<ul>
+<li><code>GET -&gt; READ</code></li>
+<li><code>POST -&gt; CREATE</code></li>
+<li><code>PATCH -&gt; UPDATE</code></li>
+<li><code>DELETE -&gt; DELETE</code></li>
+</ul>
+Postman's GUI is very intuitive. So, I am not going to talk about it in detail. Basically what you want to do is to use it to send POST requests to the server. Our server side application will then create domain instances and persist them into database. Let us create a store first:
+<br>
+<ol>
+<li>Run the server from the main class just like running any java applications.</li>
+<li>Open Postman.</li>
+<li>Select POST and type <code>localhost:8080/stores</code> in the URL column.</li>
+<li>Select Body tab and change the data format to <code>raw</code>.</li>
+<li>Change the format type from <code>Text</code> to <code>JSON (application/json)</code>.</li>
+<li>Edit the data using the following JSON format, then click Send button.</li>
+</ol>
+<pre>{
+    "name":"SAIT Store",
+    "address":"1301-16 Avenue NW Calgary AB, T2M 0L4",
+    "phoneNum":"1.877.284.7248"
+}
+</pre>
+The server will respond with a <code>201</code> code indicating that the data has been saved. We can do the same thing with Phone. Send the following JSON to <code>localhost:8080/phones</code> will create a new Phone entry:
+<br>
+<pre>{
+    "brand":"Sumsung",
+    "model":"Glaxy Note 7",
+    "quantity":"15",
+    "store":"http://localhost:8080/stores/1"
+}
+</pre>
+You will notice that the store is associated with a URL which is called URL reference. It references the store with id of 1. In this case, it is the SAIT Store we just created.<br>
+To view all the stores in the system, simply use your browser to open <code>localhost:8080/stores</code>. The browser sends an HTTP GET request to query all the stores. Similarly, to get all the phones, open <code>localhost:8080/phones</code> in the browser. All the phones will be presented in a JSON form.
+<br>
+<h2>
+Conclusion</h2>
+After reading this blog, HAL and its Spring solution should make more sense to you. Moreover, you would probably be able to write simple RESTful Web Services under HAL standard. However, you may encounter situations not covered in this blog. There are some more advanced features related to data manipulation operations and URL references in Spring and HAL. I am going to reserve them to my next blog post: Introduce to the Advanced Features of HAL.
+<br>
+<h2>
+References</h2>
+[1] <span class="Apple-tab-span" style="white-space: pre;"> </span>Apigility, "Hypertext Application Language (HAL)," Zend Technologies, Ltd., [Online]. Available: https://apigility.org/documentation/api-primer/halprimer. [Accessed 19 03 2017].<br>
+[2] <span class="Apple-tab-span" style="white-space: pre;"> </span>M. K. &lt;mike@stateless.co&gt;, "HAL - Hypertext Application Language," Stateless, 18 09 2013. [Online]. Available: http://stateless.co/hal_specification.html. [Accessed 19 03 2017].

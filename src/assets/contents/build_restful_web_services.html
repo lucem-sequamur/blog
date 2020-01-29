@@ -1,0 +1,79 @@
+REST is an end point to transfer data using XML or JSON. There are several <a href="http://crunchify.com/soap-vs-rest-simple-object-access-protocol-vs-representational-state-transfer/" target="_blank">advantages about REST Web Services</a> you may want to look into.<br>
+To build RESTful Web Services, there are 4 major specifications to make:<br>
+<ol>
+<li>Path</li>
+<li>Media type</li>
+<li>Method type</li>
+<li>Path Parameter Injection</li>
+</ol>
+<div>
+In addition, because REST takes paths mainly as parameters, it's possible to nest paths from one to another.</div>
+<h3>
+1. Path</h3>
+To make the service accessible, you need to give it an application path and sub paths. The application path can be specified in web.xml or through annotation:<br>
+<h4>
+web.xml</h4>
+<pre>&lt;servlet-mapping&gt;
+&nbsp; &nbsp; &lt;servlet-name&gt;javax.ws.rs.core.Application&lt;/servlet-name&gt;
+&nbsp; &nbsp; &lt;url-pattern&gt;/mainpath/*&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;</pre>
+<h4>
+Annotation</h4>
+<pre>@javax.ws.rs.ApplicationPath("mainpath")
+public class MyStoreApplication extends javax.ws.rs.core.Application {
+    /* empty class body */
+}</pre>
+<div>
+For sub paths,&nbsp;<code>@Path</code>&nbsp;is placed on the class level. E.g. to reach the following class with above settings, the URL is&nbsp;<code>http://&lt;domain&gt;:&lt;port&gt;/&lt;application_name&gt;/mainpath/subpath</code></div>
+<div>
+<pre>@Path("subpath")
+public class Service{}</pre>
+</div>
+It is possible to put&nbsp;<code>@Path</code> on method level, and this will be talked in the following sections.<br>
+<h3>
+2. Media Type</h3>
+There are mainly 2 types data that REST can produce or consume: XML and JSON. In particular,&nbsp;<code>@Produces</code>&nbsp;indicates the methods to send out responses with the XML or JSON data, whereas,&nbsp;<code>@Consumes</code> is for methods receiving XML or JSON data attached with requests. When they are annotated on the class level, it means the same as to annotate on every method within the class.<br>
+<pre>@Path("subpath")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class Service{}</pre>
+<h3>
+3. Method Type</h3>
+Obviously, the RESTful Web Services should respond to different request accordingly. In order to do that, you can use&nbsp;<code>@GET</code>&nbsp;<code>@POST</code>&nbsp;<code>@PUT</code>&nbsp;<code>@DELETE</code> annotations on the methods to map with CRUD operations against database.<br>
+<pre>@Path("subpath")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class Service{
+    @GET
+    public Response findById(String id){
+        // ett can be a JSON String or the Entity object(s)
+        return Response.status(Status.OK).entity(ett).build();
+    }
+}</pre>
+<h3>
+4. Path Parameter Injection</h3>
+In order to get the path parameter, which is a portion of the URL,&nbsp;<code>@Path</code> and&nbsp;<code>@PathParam</code> is used as following:<br>
+<pre>@Path("subpath")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class Service{
+    @EJB
+    EntityEJB entityEJB;
+
+    @GET
+    @Path("{id}")
+    public Response findById(@PathParam("id") String id){
+        Entity ett = entityEJB.findById(id);
+        return Response.status(Status.OK).entity(ett).build();
+    }
+}</pre>
+In the above code, the braces surrounding <code>id</code> in&nbsp;<code>@Path</code> annotation indicates that <code>id</code> is a place holder in the URL. <code>id</code> in&nbsp;<code>@PathParam</code> means the value of this portion of URL is injected into the <code>String id</code>. For example, if the URL is <code>.../subpath/a1-5</code>, the value of <code>String id</code> will be "<code>a1-5</code>".<br>
+In addition, the JSON object attached with the request can also be injected implicitly. Here is an example:<br>
+<pre>@PUT
+public Object create(Entity ett) {
+&nbsp; &nbsp; return entityEJB.persist(ett);
+}</pre>
+<h3>
+Topic: nested path</h3>
+<div>
+There are cases you may want to organize methods of a Service in several classes. Check this code about <a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-web/src/main/java/ca/sait/ws/rs/ProductResource.java" target="_blank">Service</a> and <a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-web/src/main/java/ca/sait/ws/rs/ProductSubResource.java" target="_blank">SubService</a> to find more.</div>

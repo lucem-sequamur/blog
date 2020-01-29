@@ -1,0 +1,57 @@
+When testing RESTful Web Services, you can't just enter a URL in browser since that can only send a GET request. In order to conduct other request types, one way you can do is to use a <code>ClientBuilder</code>.<br>
+<div>
+There are 3 steps to send a request using <code>ClientBuilder</code>:</div>
+<div>
+<ol>
+<li>Create an <code>Entity</code>; (<code>javax.ws.rs.client.Entity</code>)</li>
+<li>Configure an&nbsp;<code>Invocation$Builder</code>;</li>
+<li>Use <code>Invocation$Builder</code> to send a request attached with the <code>Entity</code>.</li>
+</ol>
+</div>
+<h3>
+Prerequisite</h3>
+<div>
+Because <code>ClientBuilder</code> itself is defined in <code>javax.ws.rs.client</code>, it needs a JavaEE container, or at least, the <a href="https://docs.jboss.org/resteasy/docs/3.0.9.Final/javadocs/" target="_blank">RESTEasy JAX-RS</a> API, which I like to recommend.<br>
+<h3>
+Step 1. Create an <code>Entity</code></h3>
+</div>
+<div>
+The&nbsp;<code>Entity</code>&nbsp;creating here is mainly considered as a JSON or XML object wrapped by the&nbsp;<code>Entity</code>&nbsp;class, although you have many options. The following code shows how an&nbsp;<code>Entity</code>&nbsp;is conducted:<br>
+<pre>// Conduct an entity using content, which is an JSON String
+Entity&lt;String&gt; entity =&nbsp;Entity.entity(content, MediaType.APPLICATION_JSON);</pre>
+</div>
+You can notice that the <code>content</code> is not necessarily to be a <code>String</code>, and the generic type of the <code>entity</code> is going to change accordingly.<br>
+<h3>
+Step 2. Configure an&nbsp;<code>Invocation$Builder</code></h3>
+<div>
+To configure an&nbsp;<code>Invocation$Builder</code>, use <code>ClientBuilder.newClient()</code>&nbsp;to create a new&nbsp;<code>Client</code>&nbsp;object, configure the&nbsp;<code>Client</code>&nbsp;object, and build the&nbsp;<code>Invocation$Builder</code>:<br>
+<ol>
+<li>Create a new&nbsp;<code>Client</code>&nbsp;object;</li>
+<li>Configure the&nbsp;<code>Client</code>&nbsp;object;</li>
+<li>Build the&nbsp;<code>Invocation$Builder</code>.</li>
+</ol>
+</div>
+<div>
+<pre>// Create a new Client object
+Client client = ClientBuilder.newClient();
+
+// Set an authentication (if needed)
+client = client.register(new BasicAuthentication(username, password));
+
+// Set the url, which can be a String or wrapped object
+WebTarget target = client.target(url);
+
+// Build a builder
+Builder builder = target.request();</pre>
+<h3>
+Step 3.&nbsp;Use <code>Invocation$Builder</code> to send a request attached with the <code>Entity</code>.</h3>
+Depending on what method you want to invoke on the server side, you can do GET, POST, PUT, DELETE, which generally are mapped to CRUD operations on the server side:<br>
+<pre>// To attach anything with GET method, modify the url
+Response response = builder.get();
+
+Response response = builder.post(entity);
+
+Response response = builder.put(entity);
+
+Response response = builder.delete(entity);</pre>
+See another&nbsp;<a href="https://github.com/ljzca/EARProjectExample/blob/master/my-store-web/src/test/java/ca/sait/ws/rs/client/CustomerWSTest.java" target="_blank">example</a> of using the <code>ClientBuilder</code> in a demo project.</div>

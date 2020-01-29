@@ -1,0 +1,15 @@
+<h2>
+Count lines of Code</h2>
+<img alt="eclipse_count_line" src="./eclipse_count_line.jpg" style="display: inline-block;"><br>
+This regex counts all lines with at least one character.<br>
+<hr>
+<h2>
+Delete all single line comments</h2>
+regular expression //[^\n]*\R (ctrl+f and replace this to nothing)<br>
+\R – line separator<br>
+\t – tab<br>
+* If you are editing JSON files in Eclipse, then it can not contain enters(line separators) or tabs, you have to use \n or \t or html char code to replace them. Otherwise, your JSON file won’t work.<br>
+** to know char code that eclipse is using, select the stuff you want to know, then press ctrl+f. e.g. select 2 lines to find out what the line separator looks like.<br>
+<h2>
+Enlarge Memory Usage</h2>
+Enlarging memory usage will boost the speed of your Eclipse IDE if you have enough ram. To do it, go to Eclipse folder and open eclipse.ini. Change the values of -Xms256m and -Xmx1024m. They are attributes to control minimum and maximum ram usage.

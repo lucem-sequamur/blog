@@ -1,0 +1,149 @@
+Original code to loop through the&nbsp;<code>List&lt;Element&gt;&nbsp;elements</code>:<br>
+<pre>for(Element e: elements){
+    // do something with e
+}
+</pre>
+Use of <code>-&gt;</code>&nbsp;(in case&nbsp;there is no need to&nbsp;declare the type):<br>
+<pre>elements.forEach(e -&gt; {
+    // do something with e
+});
+</pre>
+Use of <code>::</code>&nbsp;(in case you already have a method to deal, and only deal with e):<br>
+<pre>elements.forEach(instance::method);
+</pre>
+Note: The instance can be a reference, a <code>new</code> statement, or <code>this</code> keyword. If the method is static, the first part of <code>::</code> can also be the class name.<br>
+In some other cases, there might be no parameter, or more than one parameters.<br>
+If the interface of the call parameter only needs one parameter:<br>
+<pre>void call(new Interface(){
+    void execute(Object o){ // only single-method interfaces can be translated to Lambda Expression
+        // some code
+    }
+});
+</pre>
+It can be translated to:<br>
+<pre>call(e -&gt; { // e represents Object o on above code stub
+    // some code
+    // since the return type of Interface().execute() method is void, there's no need of return statement
+});
+</pre>
+Only one line statement:<br>
+<pre>call(e -&gt; statement);
+</pre>
+Using method delegation:<br>
+<pre>call(instance::method);
+// void method(Object o){ // if Interface().execute() demands a return, then the return type of this method must be same
+//     // some code
+// }
+</pre>
+If the interface of the call parameter needs no&nbsp;parameter:<br>
+<pre>void call(new Interface(){
+    void execute(){ // only single-method interfaces can be translated to Lambda Expression
+        // some code
+    }
+});
+</pre>
+It can be translated to:<br>
+<pre>call(() -&gt; { // () is used to indicate there's no parameter
+    // some code
+    // since the return type of Interface().execute() method is void, there's no need of return statement
+});
+</pre>
+Only one line statement:<br>
+<pre>call(() -&gt; statement);
+</pre>
+Using method delegation:<br>
+<pre>call(instance::method);
+// void method(){ // if Interface().execute() demands a return, then the return type of this method must be same
+//     // some code
+// }
+</pre>
+If the interface of the call parameter only needs two or more&nbsp;parameters:<br>
+<pre>void call(new Interface(){
+    void execute(Object o1, Object o2){ // only single-method interfaces can be translated to Lambda Expression
+        // some code
+    }
+});
+</pre>
+It can be translated to:<br>
+<pre>call((e1, e2) -&gt; { // (e1, e2) represents o1 and o2 on above code stub
+    // some code
+    // since the return type of Interface().execute() method is void, there's no need of return statement
+});
+</pre>
+Only one line statement:<br>
+<pre>call((e1, e2) -&gt; statement);
+</pre>
+Using method delegation:<br>
+<pre>call(instance::method);
+// void method(Object o1, Object o2){ // if Interface().execute() demands a return, then the return type of this method must be same
+//     // some code
+// }
+</pre>
+<h3>
+Function&lt;T, R&gt; &amp; Consumer&lt;T&gt; interface</h3>
+There are several ways to apply lambda expression (with @FunctionalInterface annotation).&nbsp;E.g. java.util.function.Function&lt;T, R&gt; &amp; java.util.function.Consumer&lt;T&gt; interface.<br>
+<pre>@FunctionalInterface
+public interface Function&lt;T, R&gt; {...}  // T: input type R: return/result type
+</pre>
+An example of using Functional interface:<br>
+<pre>Function&lt;Long, Long&gt; square = x -&gt; x * x;
+</pre>
+or<br>
+<pre>Function&lt;Long, Long&gt; square = instance::method;
+// Long method(Long x){return x * x;}
+</pre>
+or
+<br>
+<pre>x = doSth(x -&gt; x * x); // x will be 100 after executing
+Long doSth(Function&lt;Long, Long&gt; function){return function.apply(10 /* will be passed to x */);}</pre>
+Wrong:<br>
+<pre>NoneFunctionalClass&lt;Long, Long&gt; square = instance::method; // can not pass compilation</pre>
+Although, there're other Functional Interfaces, Consumer&lt;T&gt; is the most commonly used one in many cases, e.g. forEach method of java.util.List. The main difference between Function&lt;T, R&gt; &amp; Consumer&lt;T&gt; is that Function&lt;T, R&gt; has return type but Consumer&lt;T&gt; doesn't.
+<br>
+<h3>
+Example</h3>
+<pre>// The actual code can be found later on my github: winter project</pre>
+<pre></pre>
+<pre>package ca.ljz.winter.security.realms;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.function.Function;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
+import ca.ljz.winter.core.contexts.PropertyReader;
+
+public class JdbcRealm implements Realm {
+
+    ... field descriptions &amp; other methods
+    @Override
+    public String getPassword(String username) {
+        return connect(conn -&gt; {
+            try (PreparedStatement ps = conn.prepareStatement(propertyReader.get("PasswordQuery", PASSWORD_QUERY))) {
+                ps.setString(0, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next())
+                        return rs.getString(0);
+                    return null;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    private String connect(Function&lt;Connection, String&gt; function) {
+        try (Connection conn = ((DataSource) new InitialContext().lookup(propertyReader.get("DataSource") /* data source url */ )).getConnection()) {
+            return function.apply(conn);
+        } catch (NamingException | SQLException e) {
+            if (e instanceof RuntimeException)
+                throw (RuntimeException) e;
+            throw new RuntimeException(e);
+        }
+    }
+}</pre>

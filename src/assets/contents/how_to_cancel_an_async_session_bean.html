@@ -1,0 +1,49 @@
+<p>Asynchronous session beans are supported after EJB 3.1, which is a relatively new functionality. With Asynchronous annotation, a concept of <code>Future&lt;T&gt;</code> has also been introduced. Besides Fire-and-Forget, it added a new rule of multi-threading, Fire-and-Check. This gives users and programmers more choices when dealing with long-run procedures. Being able to cancel a method while it’s running is one of the benefits.</p>
+<p>Here is a trunk of code represents a program calling an asynchronous method.</p>
+<pre>@Stateless (name = “demo”)
+public class Caller {
+
+    @EJB
+    private Processor processor;
+
+    public void call(Problem problem){
+        //this gonna be a long run procedure
+        Future&lt;boolean&gt; solved = processor.process(problem);
+
+        ... some code...
+
+        //this doesn’t cancel, but sends a flag to processor
+        solved.cancel(true);
+
+        //once finished the method calling, test if it’s terminated by calling cancel
+        if(solved.isCancelled()) ... do something...;
+    }
+}
+</pre>
+<p>Then, see how the Processor class deals with the flag.</p>
+<pre>@Stateless(name=”service”)
+@Asynchronous //this annotation can be placed on either class level, or method level
+public class Processor{
+
+    @Resource //to inject context info of Caller
+    private SessionContext sessionContext;
+
+    public Future&lt;boolean&gt; process(Problem problem){
+
+        ... codes to process the problem, it takes a long while...
+
+        //test what flag being sent, true or false? retrieve from sessionContext which managed by the container
+        if(sessionContext.wasCancelCalled()){
+            ... do something, such as rolling back, etc...
+        }
+
+        //AsyncResult is a convenient class implementing Future.
+        //Since the generic type is boolean, a “false” or “true” can be eventually sent back wrapped within AsyncResult class.
+        //Here I’m just going to send a “false” back
+        return new AsyncResult&lt;boolean&gt; (false);
+    }
+}
+</pre>
+<p>As being said, Future.cancel(true) doesn’t cancel the process by itself. It just sends back a boolean value. If there is no handling, there will be nothing happening.</p>
+<br>
+<a rel="nofollow" href="http://ift.tt/2e5luIG"><img alt="" border="0" data-src="http://ift.tt/2eCdL82" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2e5geoK" class="" style="display: inline-block;">

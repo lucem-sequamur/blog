@@ -1,0 +1,29 @@
+<header>
+  <div class="logo">
+    <img [src]="logo" [alt]="title">
+  </div>
+  <h1 class="title">{{title}}</h1>
+</header>
+
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <button mat-button>
+      <mat-icon aria-hidden="true" aria-label="Recent Articles" [routerLink]="routerlink" [queryParams]="homeParams">home</mat-icon>
+    </button>
+    <span *ngFor="let category of categories | async">
+      <button mat-button [matMenuTriggerFor]="menu">{{category.name}}</button>
+      <mat-menu #menu="matMenu" yPosition="below" xPosition="after">
+        <span *ngFor="let tag of category.tags">
+          <button mat-menu-item [routerLink]="routerlink" [queryParams]="getRoutingParams(tag)">{{tag}}</button>
+        </span>
+      </mat-menu>
+    </span>
+    <span *ngFor="let article of pinnedArticles | async">
+      <button mat-button routerLink="{{articleLink}}/{{article.filepath}}">{{article.topic}}</button>
+    </span>
+    <span class="spacer"></span>
+    <!-- right aligned elements place here -->
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<router-outlet></router-outlet>

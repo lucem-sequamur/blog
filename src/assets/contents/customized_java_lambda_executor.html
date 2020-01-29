@@ -1,0 +1,66 @@
+I got an interesting problem today. As being a quite popular library, <code>org.json</code> is largely used for parsing JSON to generic <code>org.json.JSONObject</code>. However, parsing processes always throw checked exceptions, which makes it very tricky to use Java 8 lambda expression. Here is my solution:<br>
+<br>
+<pre>// import java.util.function.Function;
+
+public class FunctionExecutor {
+    public static &lt;A, R&gt; R execute(Function&lt;A, R&gt; function, A arg0) {
+        try {
+            return function.invoke(arg0);
+        } catch (Exception e) {
+            // If field not exist, return null.
+            return null;
+        }
+    }
+
+    // With this inner class (interface) removed (also uncomment import),
+    // the executor will not accept Exception throwing functions.
+    @FunctionalInterface
+    public interface Function&lt;A, R&gt; {
+        R invoke(A arg0) throws Exception;
+    }
+}</pre>
+<br>
+To use this executor, simply do: <code>execute(instance::method, argument)</code>.<br>
+I also thought about the following multi-arg solution:
+<br>
+<pre>public class FunctionExecutor {
+    public static &lt;A, R&gt; R execute(Function&lt;A, R&gt; function, A... arg0) {
+        try {
+            return function.invoke(arg0);
+        } catch (Exception e) {
+            // If field not exist, return null.
+            return null;
+        }
+    }
+
+    @FunctionalInterface
+    public interface Function&lt;A, R&gt; {
+        R invoke(A... arg0) throws Exception;
+    }
+}</pre>
+<br>
+However, with this approach, the code would not be as pretty: <code>execute(it -&gt; instance.method(it[0],it[1]), arg0, arg1)</code>. Also, this is good only when the argument types are all the same. Otherwise, Oracle's <code>Function</code>/<code>BiFunction</code>/<code>TriFunction</code> solution might be actually better.<br>
+<br>
+P.S. With customized error handling:<br>
+<pre>import java.util.function.BiFunction;
+
+public class FunctionExecutor {
+
+    public static &lt;A, R, E extends Exception&gt; R execute(
+        ExceptionThrowingFunction&lt;A, R, E&gt; function, BiFunction&lt;A, E, R&gt; errorHandling, A argument, Class&lt;E&gt; c) {
+
+        try {
+            return function.apply(argument);
+        } catch (Exception e) {
+            if (c.isInstance(e)) {
+                return errorHandling.apply(argument, c.cast(e));
+            }
+            throw new RuntimeException();
+        }
+    }
+
+    @FunctionalInterface
+    public interface ExceptionThrowingFunction&lt;A, R, E extends Exception&gt; {
+        R apply(A argument) throws E;
+    }
+}</pre>

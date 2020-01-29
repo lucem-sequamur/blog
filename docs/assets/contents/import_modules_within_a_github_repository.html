@@ -1,0 +1,16 @@
+<p>Instead of creating bunch of repositories for different modules of one project on github, you can make one repository for the entire project (which makes more sense), and import each module separately in your eclipse.<br>
+Note: unlike IntelliJ, in eclipse terminology, module is called project. I’m going to switch back to eclipse terminology in the following part.</p>
+<p>You need 9 steps to do it:</p>
+<ol>
+<li>Create a repo on <a href="https://github.com" target="_blank">github</a></li>
+<li>Install <a href="http://ift.tt/1cNlcjT" target="_blank">EGit</a>&nbsp;in eclipse</li>
+<li>Import the repo on github into eclipse with a Local Destination</li>
+<li>Eclipse will download files in this repo, but it’s just a normal folder, not a&nbsp;project</li>
+<li>Create new local module with eclipse (so the project can&nbsp;be configured by eclipse)</li>
+<li>In the file system, copy local module to the repo folder</li>
+<li>Refresh the repo folder in eclipse, and do a commit</li>
+<li>Delete the local project&nbsp;(the original one) in eclipse</li>
+<li>Import the local repo, and now you should be able to choose the project built earlier as an&nbsp;existing Eclipse project</li>
+</ol>
+<br>
+<a rel="nofollow" href="http://ift.tt/2eCfn1u"><img alt="" border="0" data-src="http://ift.tt/2e5gaVY" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2eCfp9v" class="" style="display: inline-block;">

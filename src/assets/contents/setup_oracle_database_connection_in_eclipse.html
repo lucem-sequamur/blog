@@ -1,0 +1,28 @@
+<p>To setup Oracle Database Connection in Eclipse is very much similar to any other Databases. There are 3 steps you need to follow.</p>
+<h3>Install Oracle Database</h3>
+<p>Since I didn’t find a non-install Oracle Database package, I assume that there is no such thing. So you have to install it, which takes a little bit more time but makes it way easier to setup.</p>
+<ol>
+<li>Download from <a href="http://ift.tt/GWjBGg" target="_blank">Oracle</a> (the link might be changing over time, just search on google)</li>
+<li>Install it</li>
+</ol>
+<p>Note, for 11g express, the default Database Service Name is <code>XE</code>. To check that out, execute the following code in SQL Command Line.</p>
+<pre>select value from v$parameter where name like '%service_name%';
+</pre>
+<p>Oracle Database shipped with a cheapo Command Line tool which you can find once the installation finished. You can type <code>connect</code> or <code>conn</code> in it to connect to database.</p>
+<h3>Install Oracle Database Driver in Eclipse</h3>
+<p>You need to download <a href="http://ift.tt/1bg6Fuc" target="_blank">Oracle Database Driver</a> first.</p>
+<p>Then in the Eclipse, open Preferences, and go to Data Management -&gt; Connectivity -&gt; Driver Definitions. You should probably not find any&nbsp;Oracle drivers there if you didn’t install Oracle Database Tools previously. Click add, it will pop up a dialog asking you what driver template you want to use. Again, if you don’t have Oracle Database Tools installed, you would just see Oracle Database Driver for 10g, Oracle Thin Driver for 8g to 11g and Other Driver for 8g to 11g. I found it doesn’t really matter to choose either one, but I choosed Thin Driver for 11g just because I’m using 11g. Switch to JAR List tab, and add JAR/ZIP you just download. Leave properties there, and done.</p>
+<p>If you ever installed Oracle Database Tools, you’ll be having drivers installed. I’ll talk about that in another article: <a href="http://ift.tt/2dQTeu1">Introduction of Oracle Database Tools</a>.</p>
+<h3>Setup Database Connection</h3>
+<p>Switch to Database Development Perspective and you will find Data Source Explorer window. Right click on Database Connections folder -&gt; new. Choose the&nbsp;Oracle then next. Choose the driver you created earlier and fill out the properties as follows:</p>
+<pre>SID:xe
+Service name:XE (ether one works by default)
+Host: localhost
+Port number: 1521
+User name: SYSTEM (you can change users if you want)
+Password: the password you set when installing the database (or created with your other users)
+Connection URL: jdbc:oracle:thin:@localhost:1521:xe (auto complete, don't change)
+</pre>
+<p>You can try connection before created. If everything is right, you should be good to go.</p>
+<br>
+<a rel="nofollow" href="http://ift.tt/2ddkULs"><img alt="" border="0" data-src="http://ift.tt/2dQRMI3" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2ddlitl" class="" style="display: inline-block;">

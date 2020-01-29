@@ -1,0 +1,102 @@
+Winter Security is one of the most important components of Winter Framework. It enhances security constraints adopted by the server application and eases development in the best possible ways. Developing web services with Winter Security can really simplify the security logic and reduce boilerplate code without giving up the flexibility of the program.<br>
+<h2>
+Prerequisites</h2>
+To be able to understand Winter Security, you need to know Java EE architecture since Winter is a complement for Java EE in the security aspect. If you don’t know Java EE architecture, the <a href="https://docs.oracle.com/javaee/7/tutorial/" target="_blank">official tutorial</a> would be a perfect starting point. To be more specific, the <a href="https://docs.oracle.com/javaee/7/tutorial/partsecurity.htm" target="_blank">security part</a> is relatively more important. In addition, knowledges of database, basic Java concepts and build tools are expected, e.g. SQL, Java project build path, <a href="https://maven.apache.org/" target="_blank">Apache Maven</a>, etc.<br>
+If you want to give a shot with limited knowledge in Java EE, it is OK. Once you have basic exposure to Java web, e.g. Servlet, JSP, etc., you should still be able to setup Winter Security by reading this blog. A nice thing about Winter Security is the simplicity it provides, which makes it to automatically fit in your project and start working behind the scene.<br>
+<h2>
+What does Winter Security do for you?</h2>
+Winter Security provides authentication and authorization services for Java EE web applications. Authentication service is to exam if a user is whom he said who he is. Accordingly, authorization service is to exam if a user has the permissions to access what needs those permissions.<br>
+<h2>
+Why to use Winter Security over others?</h2>
+Most of security frameworks are complex because they aim to provide general solutions to all development scenarios. Moreover, some older frameworks do not have a design to suit modern needs. Although, Winter Security requires a moderate understanding of Java EE platform, it still is a light weight and fairly easy to use security framework. In addition, most Java developers already know very well about Java EE platform anyway, there is no barrier for them to employ Winter Security as a light weight security framework.<br>
+Winter Security also summarizes other frameworks and adopts concepts such as User-Role-Permission authorization, Security Realm, Customizable Handlers, etc. These features make Winter Security strong enough to handle most web development needs.<br>
+<h2>
+Conditions of using Winter Security</h2>
+Winter Security depends on Java EE 7 technologies. It means your project must be a Java EE project, and it ought to be deployed to a Java EE 7 Full Platform Compatible Implementations, e.g. GlassFish, Jboss, etc.<br>
+<h2>
+Concepts of Winter Security</h2>
+Before start installing Winter Security, you have to understand some of the basic concepts of web security. Most security frameworks, including Winter Security are following the similar structure. There are 3 concepts to know in the first place:<br>
+1. User-Role-Permission authorization;<br>
+2. Security Realm;<br>
+3. Customizable Handlers.<br>
+<h3>
+User-Role-Permission authorization</h3>
+User-Role-Permission (URP) authorization is one of many routes to connect users and permissions in order to authorize particular permissions to certain users through their roles. Not every security framework supports this 3-step authorization connection. For example, Java EE only have User-Role authorization. Thus, all the functionalists are statically bonded to the particular roles in the code. Whereas, URP can be dynamic. By assigning permissions to the method level, any privileged users can maintain Role-Permission relationship without changing the existing code.<br>
+<h3>
+Security Realm</h3>
+A Security Realm is a mechanism to protect the resources of your application. In Winter Security, system can retain user credentials, roles, and permissions from a particular realm. It connects to an authentication and authorization information provider, such as a database or file system. By default, Winter Security uses a JdbcRealm to connect database. You can write your own Realm by implementing the Realm interface.<br>
+<h3>
+Customizable Handlers</h3>
+Customizable Handlers are the ways to define certain actions during an authentication and authorization process. There are 3 types of Handlers in Winter Security: AuthenticationContextHandler (AECH), AuthenticationExceptionHandler (AEEH), and AuthorizationExceptionHandler (AOEH). AECH collects user credentials of an incoming request. AEEH tells what to do if a user is not authenticated. AOEH tells what to do if a user attempts to access non-permitted method.<br>
+<h2>
+Authentication and authorization workflow</h2>
+A typical workflow of an authentication and authorization process starts at collecting user credentials using AECH. The user credentials then being stored in an AuthenticationContext**. Once the request hits a method that requires certain permission, an AuthorizationInterceptor will exam the user credentials in AuthenticationContext with user information provided by the Security Realm. If everything is OK, the user then is permitted to access the method. Otherwise, depending on what problems are, AEEH or AOEH will be called to handle the situations.<br>
+<h2>
+Install Winter Security for your project</h2>
+In order to use Winter Security, you need to build your project with related libraries including Winter Core and Winter Security. There are 2 ways of doing this:<br>
+1. Download .jar files and include them into your project’s build path: <a href="https://github.com/ljzca/Winter/blob/master/winter-core/winter-core.jar" target="_blank">winter-core</a>, <a href="https://github.com/ljzca/Winter/blob/master/winter-security/winter-security.jar" target="_blank">winter-security</a>.<br>
+2. Use Maven build tool to declare Winter Security dependency* in the pom.xml file:<br>
+<pre>&lt;project&gt;
+    ...
+    &lt;dependencies&gt;
+        ...
+        &lt;dependency&gt;
+            &lt;groupId&gt;ca.ljz&lt;/groupId&gt;
+            &lt;artifactId&gt;winter-security&lt;/artifactId&gt;
+            &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+        &lt;/dependency&gt;
+        ...
+    &lt;/dependencies&gt;
+    ...
+&lt;/project&gt;
+</pre>
+Once you done one of the above options, Winter Security will be activated for your project right away.<br>
+<h2>
+Configurations</h2>
+Winter Security follows an idea of convention over configuration to minimize configurations setting. However, you still have to have a configuration file and at least point out which data source to be used to retrieve user information.<br>
+Once you have Winter Security installed on your project, it is activated. If you run your project right away, you will get an error saying there is no data source connected. That is exact what we should get. Winter Security by default uses a JdbcRealm to retrieve user information from a database. You could either write your own Realm by implementing <a href="https://github.com/ljzca/Winter/blob/master/winter-security/src/main/java/ca/ljz/winter/security/realms/Realm.java" target="_blank">Realm interface</a>, or indicate a data source in the configuration file. You can explore more about writing a Realm in the&nbsp;<a href="https://github.com/ljzca/Winter/tree/master/winter-security/doc" target="_blank">Java Doc</a>. Instead of writing one, I am going to talk more about configurations with the default JdbcRealm.<br>
+<h3>
+application.properties</h3>
+In order to configure Winter Security, you need to create a text file named <a href="https://github.com/ljzca/Winter/blob/master/winter-sample/src/main/java/application.properties" target="_blank">application.properties</a> in your default package (known as default directory of the project classloader). If you don’t know where default package is, just create a new class in your IDE with empty package entry. The new class will be created in the default package of your project. That folder is where to store your&nbsp;<a href="https://github.com/ljzca/Winter/blob/master/winter-sample/src/main/java/application.properties" target="_blank">application.properties</a>&nbsp;file.<br>
+The configuration file, application.properties, is a key-value paired text file to be loaded by <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html" target="_blank">java.util.Properties</a>. Thus, it should follow the standard format of key-value property file. In <a href="https://github.com/ljzca/Winter/tree/master/winter-sample" target="_blank">Winter sample project</a>, you can find all predefined keys and their default values in the <a href="https://github.com/ljzca/Winter/blob/master/winter-sample/src/main/java/application.properties" target="_blank">configuration file</a> as an example.<br>
+<h3>
+DataSource property</h3>
+To specify a data source, you need to assign the JNDI name of the data source to "DataSource" key/property, e.g. DataSource=jdbc/sample. The JNDI name should have been predefined in your application server.<br>
+You don’t need other lines in application.properties file unless you want to customize other properties. Now, you have had one line key-value pair of DataSource property, your project should be able to start again normally.<br>
+<h2>
+Conventions for table structure</h2>
+In previous sections, we talked about URP (User-Role-Permission) authorization. To support this feature, the database tables should be created following this structure. As a suggestion, 5 tables would be involved in authentication and authorization progress: user, user_role, role, role_permission, permission. From the table naming convention, you would know that user_role and role_permission are bridging tables for many-to-many relationships between user, role, and permission tables.<br>
+To use the <a href="https://github.com/ljzca/Winter/blob/master/winter-security/src/main/java/ca/ljz/winter/security/realms/JdbcRealm.java" target="_blank">default JdbcRealm</a>, you should either have exact same naming for tables and columns to match the predefined SQL queries, or, you can specify queries in the configuration file.<br>
+To specify queries, you need define values for 3 keys/properties in application.properties file: Query.Password, Query.Role, and Query.Permission.<br>
+<h3>
+Query.Password property</h3>
+You need a sql query that takes a username to get the associated password. E.g. Query.Password=select password from user where username = ?<br>
+<h3>
+Query.Role property</h3>
+This property demands a username and returns a set of roles. E.g. Query.Role=select role from user_role where username = ?<br>
+<h3>
+Query.Permission property</h3>
+By searching across user_role and role_permission tables, this query is to find all permissions of a given user. E.g. Query.Permission=select permission from user_role ur, role_permission rp where ur.role = pr.role and ur.username = ?<br>
+Depending on your actual table naming and structure, the queries you have can be different. But, the idea is same: use a given username to query whatever the system needs.<br>
+<h2>
+Method level security</h2>
+Once finishing above settings, you can start using Winter Security to secure your program. Winter Security really emphasizes method level security. In a brief, you should have all your sensitive methods being registered to related permissions, and let the security framework check each method call to see if the required permission is granted to the caller/user who makes that call. In other words, all you need to do is to register a permission to each method. The way of doing that is to annotate the method with <a href="https://github.com/ljzca/Winter/blob/master/winter-security/src/main/java/ca/ljz/winter/security/annotations/PermissionCheck.java" target="_blank">@PermissionCheck</a> annotation.<br>
+<h3>
+Authenticate user</h3>
+@PermissionCheck is an annotation defined by Winter Security. By barely placing this annotation on a method, the framework will do authentication check, and all authenticated users will be allowed to call the method.<br>
+<h3>
+Register method</h3>
+To register a method, you just need to use this annotation on the method with a value, e.g. @PermissionCheck(“getAllUsers”) public Response getAll(){...}. The value “getAllUsers” is a permission name. It will be examed to match one of the permissions of the caller when the method is being called.<br>
+<h3>
+Non-protected method</h3>
+If a method is not annotated with @PermissionCheck, it is not protected by Winter Security.<br>
+<h2>
+AuthenticationContext</h2>
+One thing I would like to mention is the way to get caller’s information. Although, it is not implemented by Winter Framework, it is still good to know when using Winter Security.<br>
+Winter Security uses AuthenticationContext to store caller's information of an incoming request, including name and password. Since Winter is built upon Java EE framework, it praises CDI to retreive AuthenticationContext. Thus, AuthenticationContext can be injected in any managed beans. In your code, simply make a field of @Inject AuthenticationContext, then you can get the caller’s name from it by calling getName() method.<br>
+<h2>
+Conclusion</h2>
+After reading this blog, you should be able to setup and use Winter Security to secure your project. You may explore more about this framework when you atually use it in your project. If you really want to take a deeper look into Winter Project, you can check its <a href="https://github.com/ljzca/Winter" target="_blank">GitHub repository</a>. I hope you enjoy it.<br>
+<br>
+* Because Winter Framework has not been submitted to Maven Central repository, the current version has to be installed to your local machine. However, when generating distributable .war file, you can choose to pack the dependencies to avoid dependency missing problems.<br>
+** AuthenticationContext is a class containing caller’s username and password of current request.

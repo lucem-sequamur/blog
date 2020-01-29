@@ -1,0 +1,463 @@
+[
+  {
+    "topic": "About me",
+    "tags": [],
+    "date": "2020-01-26T10:19:00.000Z",
+    "pin": true,
+    "filepath": "about_me.html"
+  },
+  {
+    "topic": "IoC example with proxy",
+    "tags": [
+      "Java",
+      "Design Pattern",
+      "Aspect Oriented Programming"
+    ],
+    "date": "2019-07-08T05:59:00.003Z",
+    "pin": false,
+    "filepath": "proxies_example.html"
+  },
+  {
+    "topic": "Setup iptables",
+    "tags": [
+      "Network",
+      "System Settings"
+    ],
+    "date": "2018-12-30T05:59:00.003Z",
+    "pin": false,
+    "filepath": "setup_iptables.html"
+  },
+  {
+    "topic": "JavaScript Loading Sequence",
+    "tags": [
+      "JavaScript",
+      "HTML"
+    ],
+    "date": "2018-12-19T02:07:00.001Z",
+    "pin": false,
+    "filepath": "javascript_loading_sequence.html"
+  },
+  {
+    "topic": "Customized Java Lambda Executor",
+    "tags": [
+      "Java",
+      "Functional Programming"
+    ],
+    "date": "2018-08-04T05:19:00.002Z",
+    "pin": false,
+    "filepath": "customized_java_lambda_executor.html"
+  },
+  {
+    "topic": "Verify Logging Event with Mockito",
+    "tags": [
+      "Java",
+      "Testing"
+    ],
+    "date": "2018-04-30T17:17:00.000Z",
+    "pin": false,
+    "filepath": "verify_logging_event_with_mockito.html"
+  },
+  {
+    "topic": "Install Oracle 11gR2 on Debian-9.4.0",
+    "tags": [
+      "OracleDB",
+      "Debian"
+    ],
+    "date": "2018-04-30T16:30:00.000Z",
+    "pin": false,
+    "filepath": "install_oracle_11gr2_on_debian-9_4_0.html"
+  },
+  {
+    "topic": "Debug ribbon-loadbalancer",
+    "tags": [
+      "Java",
+      "Cloud"
+    ],
+    "date": "2017-12-06T23:35:00.000Z",
+    "pin": false,
+    "filepath": "debug_ribbon-loadbalancer.html"
+  },
+  {
+    "topic": "Setup Liquibase with Maven",
+    "tags": [
+      "Liquibase",
+      "Maven"
+    ],
+    "date": "2017-12-01T05:01:00.004Z",
+    "pin": false,
+    "filepath": "setup_liquibase_with_maven.html"
+  },
+  {
+    "topic": "How to remove a bomb",
+    "tags": [
+      "Vim"
+    ],
+    "date": "2017-11-10T22:44:00.000Z",
+    "pin": false,
+    "filepath": "how_to_remove_a_bomb.html"
+  },
+  {
+    "topic": "Maven configuration for desktop targeted libGDX setup",
+    "tags": [
+      "Maven",
+      "LibGDX"
+    ],
+    "date": "2017-10-14T05:42:00.000Z",
+    "pin": false,
+    "filepath": "maven_configuration_for_desktop_targeted_libgdx_setup.html"
+  },
+  {
+    "topic": "Lombok Maven settings",
+    "tags": [
+      "Maven",
+      "Lombok"
+    ],
+    "date": "2017-07-09T00:33:00.000Z",
+    "pin": false,
+    "filepath": "lombok_maven_settings.html"
+  },
+  {
+    "topic": "Quick links of Groovy/Grails related plugins",
+    "tags": [
+      "Groovy"
+    ],
+    "date": "2017-07-02T07:36:00.000Z",
+    "pin": false,
+    "filepath": "quick_links_of_groovy_grails_related_plugins.html"
+  },
+  {
+    "topic": "Debian VM setup",
+    "tags": [
+      "Debian"
+    ],
+    "date": "2017-06-16T05:13:00.002Z",
+    "pin": false,
+    "filepath": "debian_vm_setup.html"
+  },
+  {
+    "topic": "Quick Start with Nashorn engine",
+    "tags": [
+      "Java",
+      "JavaScript"
+    ],
+    "date": "2017-05-06T00:43:00.000Z",
+    "pin": false,
+    "filepath": "quick_start_with_nashorn_engine.html"
+  },
+  {
+    "topic": "Introduce to the Advanced Features of HAL",
+    "tags": [
+      "Java",
+      "RESTful API"
+    ],
+    "date": "2017-04-09T07:46:00.000Z",
+    "pin": false,
+    "filepath": "introduce_to_the_advanced_features_of_hal.html"
+  },
+  {
+    "topic": "Get Start with HAL",
+    "tags": [
+      "Java",
+      "RESTful API"
+    ],
+    "date": "2017-03-19T22:02:00.001Z",
+    "pin": false,
+    "filepath": "get_start_with_hal.html"
+  },
+  {
+    "topic": "Introduce to Winter Security",
+    "tags": [
+      "Java"
+    ],
+    "date": "2017-02-25T21:21:00.000Z",
+    "pin": false,
+    "filepath": "introduce_to_winter_security.html"
+  },
+  {
+    "topic": "Overview of Winter Framework",
+    "tags": [
+      "Java"
+    ],
+    "date": "2017-01-26T21:01:00.002Z",
+    "pin": false,
+    "filepath": "overview_of_winter_framework.html"
+  },
+  {
+    "topic": "Develop AspectJ Library",
+    "tags": [
+      "Java",
+      "Aspect Oriented Programming"
+    ],
+    "date": "2016-12-23T08:45:00.000Z",
+    "pin": false,
+    "filepath": "develop_aspectj_library.html"
+  },
+  {
+    "topic": "Proxy Pattern with JAX-B",
+    "tags": [
+      "Java",
+      "Design Pattern"
+    ],
+    "date": "2016-11-17T22:57:00.000Z",
+    "pin": false,
+    "filepath": "proxy_pattern_with_jax-b.html"
+  },
+  {
+    "topic": "JAAS Setup Walkthrough",
+    "tags": [
+      "Java"
+    ],
+    "date": "2016-11-06T00:10:00.000Z",
+    "pin": false,
+    "filepath": "jaas_setup_walkthrough.html"
+  },
+  {
+    "topic": "Build RESTful Web Services",
+    "tags": [
+      "Java",
+      "RESTful API"
+    ],
+    "date": "2016-10-21T01:35:00.000Z",
+    "pin": false,
+    "filepath": "build_restful_web_services.html"
+  },
+  {
+    "topic": "Send HTTP Request",
+    "tags": [
+      "Java"
+    ],
+    "date": "2016-10-17T17:35:00.000Z",
+    "pin": false,
+    "filepath": "send_http_request.html"
+  },
+  {
+    "topic": "Get start with CDI",
+    "tags": [
+      "Java"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "get_start_with_cdi.html"
+  },
+  {
+    "topic": "Unzip JDK from installation package",
+    "tags": [
+      "Java"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "unzip_jdk_from_installation_package.html"
+  },
+  {
+    "topic": "Setup NetBeans with Non-installation JDK",
+    "tags": [
+      "Java",
+      "NetBeans"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "setup_netbeans_with_non-installation_jdk.html"
+  },
+  {
+    "topic": "How to Cancel an Async Session Bean",
+    "tags": [
+      "Java"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "how_to_cancel_an_async_session_bean.html"
+  },
+  {
+    "topic": "Eclipse Tips",
+    "tags": [
+      "Eclipse"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "eclipse_tips.html"
+  },
+  {
+    "topic": "Initialize MySQL",
+    "tags": [
+      "MySQL"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "initialize_mySQL.html"
+  },
+  {
+    "topic": "Send and read emails with JavaMail API",
+    "tags": [
+      "Java"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "send_and_read_emails_with_javamail_api.html"
+  },
+  {
+    "topic": "Setup GlassFish in Eclipse",
+    "tags": [
+      "Java",
+      "Eclipse"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "setup_glassfish_in_eclipse.html"
+  },
+  {
+    "topic": "Setup WildFly in Eclipse",
+    "tags": [
+      "Java",
+      "Eclipse"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "setup_wildfly_in_eclipse.html"
+  },
+  {
+    "topic": "Introduction of Oracle Database Tools",
+    "tags": [
+      "OracleDB"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "introduction_of_oracle_database_tools.html"
+  },
+  {
+    "topic": "Display correct name in a teamwork",
+    "tags": [],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "display_correct_name_in_a_teamwork.html"
+  },
+  {
+    "topic": "Import modules within a github repository",
+    "tags": [],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "import_modules_within_a_github_repository.html"
+  },
+  {
+    "topic": "Expose to GSON",
+    "tags": [
+      "Java"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "expose_to_gson.html"
+  },
+  {
+    "topic": "First Sight of Mockito",
+    "tags": [
+      "Java",
+      "Testing"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "first_sight_of_mockito.html"
+  },
+  {
+    "topic": "Java Validation",
+    "tags": [
+      "Java"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "java_validation.html"
+  },
+  {
+    "topic": "Singleton Pattern Example",
+    "tags": [
+      "Java",
+      "Design Pattern"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "singleton_pattern_example.html"
+  },
+  {
+    "topic": "Lambda Expression Examples",
+    "tags": [
+      "Java",
+      "Functional Programming"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "lambda_expression_examples.html"
+  },
+  {
+    "topic": "A summary of Generic Type",
+    "tags": [
+      "Java"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "a_summary_of_generic_type.html"
+  },
+  {
+    "topic": "Maven Configurations",
+    "tags": [
+      "Maven"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "maven_configurations.html"
+  },
+  {
+    "topic": "Setup DDNS with home router",
+    "tags": [
+      "Network"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "setup_ddns_with_home_router.html"
+  },
+  {
+    "topic": "Setup MySQL connection in WildFly and Eclipse",
+    "tags": [
+      "MySQL",
+      "Eclipse"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "setup_mysql_connection_in_wildfly_and_eclipse.html"
+  },
+  {
+    "topic": "Install Mysql JDBC Driver on WildFly and GlassFish",
+    "tags": [
+      "MySQL"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "install_mysql_jdbc_driver_on_wildfly_and_glassfish.html"
+  },
+  {
+    "topic": "Callable Example",
+    "tags": [
+      "Java"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "callable_example.html"
+  },
+  {
+    "topic": "Assert JSON",
+    "tags": [
+      "Java",
+      "Testing"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "assert_json.html"
+  },
+  {
+    "topic": "Setup Oracle Database Connection in Eclipse",
+    "tags": [
+      "OracleDB",
+      "Eclipse"
+    ],
+    "date": "2016-10-15T02:43:00.001Z",
+    "pin": false,
+    "filepath": "setup_oracle_database_connection_in_eclipse.html"
+  }
+]

@@ -1,0 +1,15 @@
+<h3>A Brief Description why you want&nbsp;Oracle Database Tools</h3>
+<p>This article will introduce you how to setup a GUI for your oracle database in Eclipse with Oracle Database Tools.</p>
+<p>Note that most Databases actually have their own GUI tool programs, but Oracle 11g express&nbsp;is not shipped with one. For general purposes with&nbsp;almost every database, you can use Beaver DB, which is a really good tool you can also find in Eclipse Marketplace. But Oracle Database Tools are optimized specifically for Oracle DB, means they give you more capabilities to work with Oracle DB.</p>
+<h3>Installation</h3>
+<p>To setup Oracle Database Tool, go to Eclipse Marketplace within your Eclipse. Search Oracle Database Tools, and you will find it. It is developed by Oracle, and is free.</p>
+<p>Once you done installation, you’ll find some icons in the Data Source Explorer are actually changed. If you haven’t setup Database Connection yet, check&nbsp;<a href="http://ift.tt/2eCeJRr">Setup Oracle Database Connection in Eclipse</a>.</p>
+<h3>Start&nbsp;using it</h3>
+<p>If you have tables created by users other than SYSTEM, and you logged in using SYSTEM, you can find the tables under that user’s schema (the schema name is the user’s name). The following SQL code shows how to create a user:</p>
+<pre>CREATE USER &lt;username&gt; IDENTIFIED BY &lt;password&gt;
+DEFAULT TABLESPACE users;
+GRANT [privileges] TO &lt;username&gt;;
+</pre>
+<p>Once you created a user, you can expand that user’s schema in the hierarchy and explore all the contents of it. By right click on Tables and Edit Schema, you can view and edit the physical ERD of all tables this user has. The Tools can actually generate DDL as you editing the table on GUI.</p>
+<br>
+<a rel="nofollow" href="http://ift.tt/2e5k1Cv"><img alt="" border="0" data-src="http://ift.tt/2eCcBt3" src="data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="deferred"></a> <img alt="" border="0" width="1" height="1" src="http://ift.tt/2e5hdoZ" class="" style="display: inline-block;">

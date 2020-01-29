@@ -1,0 +1,86 @@
+<pre>
+package ca.ljz.proxy;
+
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
+import static java.lang.reflect.Proxy.newProxyInstance;
+
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import java.util.Set;
+
+import org.reflections.Reflections;
+
+// An example demos creation of proxies using org.reflections library
+public class Factory {
+
+    private Object getInstance() {
+
+        Reflections reflections = new Reflections(&quot;ca.ljz.proxy&quot;);
+
+        Set&lt;Class&lt;?&gt;&gt; annotated = reflections.getTypesAnnotatedWith(Scannable.class);
+        return newProxyInstance(this.getClass().getClassLoader(), annotated.toArray(new Class[0]),
+            (proxy, method, args) -&gt; method.getAnnotations());
+    }
+
+    private static void print(Annotation[] annotations) {
+        System.out.println(annotations.length);
+        for (Annotation annotation : annotations) {
+            System.out.println(annotation);
+        }
+    }
+
+    public static void main(String[] args) {
+        Interface itfc = (Interface) new Factory().getInstance();
+        print(itfc.getAnnotations());
+        InterfaceA itfca = (InterfaceA) new Factory().getInstance();
+        print(itfca.getAnnotations());
+        print(itfca.getAnnotationsA());
+        InterfaceB itfcb = (InterfaceB) new Factory().getInstance();
+        print(itfcb.getAnnotations());
+        print(itfcb.getAnnotationsB());
+    }
+}
+
+@Retention(RUNTIME)
+@Target(TYPE)
+@interface Scannable {
+}
+
+@Retention(RUNTIME)
+@Target(METHOD)
+@interface MethodAnnotationA {
+}
+
+@Retention(RUNTIME)
+@Target(METHOD)
+@interface MethodAnnotationB {
+}
+
+@Scannable
+interface Interface {
+
+    Annotation[] getAnnotations();
+}
+
+@Scannable
+interface InterfaceA extends Interface {
+    @Override
+    @MethodAnnotationA
+    Annotation[] getAnnotations();
+
+    @MethodAnnotationA
+    Annotation[] getAnnotationsA();
+}
+
+@Scannable
+interface InterfaceB extends Interface {
+    @Override
+    @MethodAnnotationB
+    Annotation[] getAnnotations();
+
+    @MethodAnnotationB
+    Annotation[] getAnnotationsB();
+}
+</pre>

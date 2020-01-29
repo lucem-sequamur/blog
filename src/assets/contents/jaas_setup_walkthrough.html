@@ -1,0 +1,88 @@
+Few days ago I was asked to write this article by my friend and classmate Ali Almutawakel. Thanks for this request, I got a lot of fun digging into JAAS.<br>
+JAAS stands for Java Authentication and Authorization Service, which is a JVM level security solution for Java applications. That means, in practice, it requires some setup with the platform to get it to work. In this article, I will use WildFly as an example application server to demonstrate how it works. The source code that will be used in this article can be found on my <a href="https://github.com/ljzca" target="_blank">github</a>&nbsp;account in a project I created a few days ago called "<a href="https://github.com/ljzca/demo" target="_blank">demo</a>".<br>
+<h3>
+About the Demo Project</h3>
+Regarding this project I would like to thank my instructors Aaron Warsylewicz, John O'Loughlin and Nicole Berard. They contributed their time to inspire me. Without them, I could not have started this article or get the project to work.<br>
+In my opinion JAAS is one of the toughest Java concepts to understand. However, in this article I'll skip all the lower level details* and jump directly to its practical application.<br>
+To run this project you need to download and import the source code into Eclipse, and run it on a WildFly application server along with a database (scripts for MySQL and Oracle are provided). You can download some tools to test against the RESTful Web Services, or you can just run the&nbsp;<a href="https://github.com/ljzca/demo/blob/master/demo-web/src/test/java/ca/ljz/demo/resources/UserTest.java" target="_blank">JUnit tests</a>.<br>
+If you check my&nbsp;<a href="https://github.com/ljzca/demo/blob/master/demo-ejb/src/main/java/ca/ljz/demo/entities/Script.sql" target="_blank">database script</a>&nbsp;in the project you will find 3 tables. They are a User table, a Group table, and a bridging table. This structure is very common and works well with JAAS. Notice that although I have a persistence layer and all the entities, JAAS will not use them in this particular project with my settings.<br>
+<h3>
+Setting Steps</h3>
+There are 3 steps to get JAAS working properly:<br>
+<ol>
+<li>Configure the Application Server</li>
+<li>Configure the project</li>
+<li>Add annotations to your code (or you can do it in a programmatic way)</li>
+</ol>
+<h3>
+Configure the Application Server</h3>
+To configure the security settings on WildFly in order to read credentials from a database, you need to&nbsp;<a href="http://ljzca.blogspot.ca/2016/10/setup-mysql-connection-in-wildfly-and.html" target="_blank">setup a data source</a>&nbsp;for your database connection first. You can set all the configurations through the web console, or by changing the configuration file.<br>
+Web console solution:<br>
+<ol>
+<li>Login to WildFly web console (localhost:9990)</li>
+<li>Go to Configuration / Subsystem / Security</li>
+<li>Add a security domain. The name of the security domain will be used later in jboss-web.xml</li>
+<li>Open the security domain. Within the Authentication view click Add to add an authentication module</li>
+<li>Click on Edit to edit the properties of this module (module option key value pairs).</li>
+</ol>
+<div>
+Configuration File:</div>
+<pre>&lt;security-domain name="demo" cache-type="default"&gt;
+    &lt;authentication&gt;
+        &lt;login-module code="Database" flag="required"&gt;
+            &lt;module-option name="dsJndiName" value="java:/DemoDS" /&gt;
+            &lt;module-option name="principalsQuery"
+                value="select password from demo_user where name=?" /&gt;
+            &lt;module-option name="rolesQuery"
+                value="select g.name, 'Roles' from demo_user u, demo_group g, demo_user_group ug where u.name=? and u.id=ug.user_id and g.id=ug.group_id" /&gt;
+            &lt;module-option name="hashAlgorithm" value="SHA-256"/&gt;
+            &lt;module-option name="hashEncoding" value="BASE64"/&gt;
+            &lt;module-option name="ignorePasswordCase" value="true"/&gt;
+            &lt;module-option name="hashStorePassword" value="false"/&gt;
+            &lt;module-option name="hashUserPassword" value="true"/&gt;
+        &lt;/login-module&gt;
+    &lt;/authentication&gt;
+&lt;/security-domain&gt;
+</pre>
+<div>
+There are few example security domains in the configuration file by default so it shouldn't be difficult to find where to insert the above configuration. You can also check out my&nbsp;<a href="https://github.com/ljzca/demo/blob/master/README.txt">README.txt</a> for configuring the application server.<br>
+This is the only section that really depends on the which application server you are using. However, most of them shares similar concepts. In addition, you can also create&nbsp;<a href="https://docs.jboss.org/jbosssecurity/docs/6.0/security_guide/html/Login_Modules.html#sect-Custom_Modules" target="_blank">your own authentication mechanism</a>, and setup in the application server.</div>
+<h3>
+Configure the Project</h3>
+<div>
+Project configuration for JAAS is pretty straight forward. However, knowing the limitations of it would be helpful when building your own applications. There are 2 files (for WildFly/JBoss) to be edited: <a href="https://github.com/ljzca/demo/blob/master/demo-web/src/main/webapp/WEB-INF/web.xml" target="_blank">web.xml</a> and <a href="https://github.com/ljzca/demo/blob/master/demo-web/src/main/webapp/WEB-INF/jboss-web.xml" target="_blank">jboss-web.xml</a>.</div>
+<h4>
+web.xml</h4>
+<div>
+In web.xml there are 3 tags and their sub tags that you need to manage in order to get JAAS configured within your project. Since you've configured the security domain in your application server JAAS is already sitting there for you to use. So you don't have to configure the project to get the user principals. You can programmatically do the authentication and authorization with the user principals. In other words you will be able to use annotations to automate the authentication and authorization processes.<br>
+<br></div>
+<div>
+<code><b>&lt;security-constraint&gt;</b></code><br>
+This tag allows you to apply an authentication process by specifying which web resource you want to constrain, with what roles. A more general constraint will be overridden by a more specific constraint. For example: in the web.xml file of my project, the constraint "protected" will be applied to all URLs with a pattern of <code>/rest/*</code>, except the put method for&nbsp;<code>/rest/user/*</code>, which is using the constraint "public". In addition, if you don't specify a role, then everyone will have access.<br>
+<br></div>
+<div>
+<code><b>&lt;login-config&gt;</b></code></div>
+<div>
+Within this tag you can configure the method that is used to do the authentication. BASIC can be a good choice for RESTful Web Services. However, since the password is not required to be encrypted, you need SSL to encrypt the user credential. (SSL encrypts all communication information and not just the user credentials, which is nice. But you need a dedicated IP to enable it. Check <a href="http://www.whoishostingthis.com/blog/2013/08/26/do-i-need-a-dedicated-ip-address/" target="_blank">this article</a> for details)<br>
+<b><br></b>
+<code><b>&lt;security-role&gt;</b></code></div>
+<div>
+You can list all the roles (or I call "groups" in my project based on the database structure). These roles are used to associate with the authorizations by annotating them in your code. However, there are pros and cons for doing this. When there are a lot of changes to the security constraints or the security roles, hard-coded configuring of them is not a good approach.<br>
+<br>
+Personal experience<br>
+I had a project in which the roles and constraints were constantly changing. For example, the accessibility of each level of administartor changed every few months, new roles were added, and old roles were removed. In that case, since we didn't predict this requirement, the web.xml configuration locked down all the roles and constraints and we lost the flexibility to change them from within Java code. To fix it (and meet the deadline), we actually made the program rewrite the web.xml file. Because of that, every time the system applied new roles and constraints the server had to restart to apply the changes. That was a disaster, in my opinion. So, knowing what clients really need (not only what they say), and choose an appropriate approach, is always critical to the development of a complex system.</div>
+<h4>
+jboss-web.xml</h4>
+jboss-web.xml is an JBoss/WildFly extension of web.xml file. If you see this file in my project you'll find it's very straight forward because it only contains the name of the security domain.<br>
+<h3>
+Add Annotations</h3>
+The Java security annotations are fairly simple. You add them to method level&nbsp;(<a href="https://github.com/ljzca/demo/blob/master/demo-web/src/main/java/ca/ljz/demo/resources/UserResource.java" target="_blank">code example</a>)&nbsp;in different layers. It means, you don't only take control of the security in your RESTful Web Services, but also the business logic layer or even persistent layer&nbsp;(<a href="https://github.com/ljzca/EARProjectExample/blob/8dfa5ccc1dff199abf07e66c343d774741a89b6f/my-store-ejb/src/main/java/ca/sait/ejb/ProductEJB.java" target="_blank">code example</a>).<br>
+There are 3 annotations being used mostly: <code>javax.annotation.security.DeclareRoles</code>, <code>javax.annotation.security.PermitAll</code>, <code>javax.annotation.security.RolesAllowed</code>. You can find them in the code examples.<br>
+<h3>
+Programmatic Approach</h3>
+<div>
+Unlike applying annotations, you can also do the authorization programmatically without configuring roles and constraints in web.xml file. To do that, you need to know <a href="https://docs.oracle.com/cd/E19316-01/819-3669/bncaa/index.html" target="_blank">if the caller is in a particular role</a>, or you may also want to <a href="https://github.com/ljzca/demo/blob/master/demo-ejb/src/main/java/ca/ljz/demo/ejbs/BaseEJB.java" target="_blank">get caller principle</a> from SessionContext.</div>
+<div>
+<br></div>
+<div>
+* For more details about JAAS theory, there is an unpublished book&nbsp;<a href="https://jaasbook.wordpress.com/" target="_blank">JAAS in Action</a>&nbsp;you can look into.</div>

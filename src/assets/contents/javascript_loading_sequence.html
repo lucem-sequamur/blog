@@ -1,0 +1,45 @@
+Example html page:<br>
+    <pre>&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+      &lt;head&gt;
+        &lt;script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"&gt;&lt;/script&gt;
+        &lt;title&gt;Page Title&lt;/title&gt;
+        &lt;script&gt;
+          $(document).ready (function(){
+    &nbsp;       console.log('JQuery dom ready')
+          });
+        &lt;/script&gt;
+        &lt;script&gt;
+          document.addEventListener("DOMContentLoaded", function() {
+    &nbsp;       console.log('ready')
+          });
+        &lt;/script&gt;
+        &lt;script&gt;
+          console.log('head')
+        &lt;/script&gt;
+      &lt;/head&gt;
+      &lt;body&gt;
+        &lt;script&gt;
+          console.log('begin')
+        &lt;/script&gt;
+        random text...
+        &lt;img src="http://randomsite"&gt;
+        &lt;script&gt;
+          console.log('end')
+        &lt;/script&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+    
+    </pre>
+    console log:<br>
+    <pre>index.html:17 head
+    index.html:22 begin
+    index.html:27 end
+    index.html:13 ready
+    index.html:8 JQuery dom ready
+    index.html:25 GET http://randomsite/ net::ERR_NAME_NOT_RESOLVED
+    
+    </pre>
+    JavaScript will always be executed from top to bottom when the page is loading (including event listener registration). JQuery document ready is always triggered after DOMContentLoaded. Page rendering is done after page loading (maybe done asynchronously) because the rendering error can be thrown after document ready event.<br>
+    <br>
+    P.S. With break point debugging, when stopping at <code>console.log('head')</code>, it is very clear to see that the page body is not loaded yet.

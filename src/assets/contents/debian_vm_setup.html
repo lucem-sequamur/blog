@@ -1,0 +1,78 @@
+This article is for setting up Debian on <a href="https://www.virtualbox.org/" target="_blank">VirtualBox</a>.<br>
+<h2>
+Download Debian</h2>
+Go to the <a href="https://www.debian.org/" target="_blank">official site of Debian</a>;<br>
+In Getting Debian page, download the <a href="https://www.debian.org/distrib/netinst" target="_blank">small installation image</a> (<a href="https://cdimage.debian.org/debian-cd/current/i386/iso-cd/debian-8.8.0-i386-netinst.iso" target="_blank">32-bit</a>/<a href="https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-8.8.0-amd64-netinst.iso" target="_blank">64-bit</a>).<br>
+<h2>
+Install Debian</h2>
+Create a Debian VM in VirtualBox;<br>
+Insert the Debian ISO into the empty slot in <code>Setting/Storage/Controller: IDE</code>;<br>
+Start the VM and follow the steps to install Debian. (<code>standard system utilities</code> in software selection screen is a prerequisite for the following instructions)<br>
+<h2>
+Install Guest Additions Driver</h2>
+<ol>
+<li>Start user session (login) in command line (<code>Ctrl</code> + <code>Alt</code>&nbsp;+ <code>F1</code>/<code>F7</code> to switch between GUI and command line). Optionally, login to GUI and open a terminal window.</li>
+<li><pre>sudo apt-get install build-essential linux-headers-$(uname -r)</pre>
+</li>
+<li>In the VM window, select <code>Insert Guest Addition CD Image...</code> under Device menu</li>
+<li>Optionally (do this only if auto-mount is not yet enabled), <code>mount /media/cdrom</code></li>
+<li><pre>sudo bash /media/cdrom/VBoxLinuxAdditions.run</pre>
+or<pre>sudo sh /media/cdrom/VBoxLinuxAdditions.run</pre>
+</li>
+</ol>
+<h2>
+Setup Shared Folders</h2>
+<ol>
+<li>
+Open <code>Devices/Shared Folders/Shared Folders Settings</code></li>
+<li>
+Under Shared Folders, click <code>adds new shared folder</code>;</li>
+<li>
+Choose Folder Path, and check <code>Auto-mount</code> and <code>Make Permanent</code>, and click <code>OK</code>. Take a note of the <code>folder name</code></li>
+<li>Optional: check uid and gid
+<pre>id</pre>
+or<pre>id [username]</pre>
+If follow through, both uid and gid should be 1000
+</li>
+<li>
+Optional (do this only if auto-mount is not yet enabled)
+<ul>
+<li>Option 1: Set up a root owned directory (with 777 default permission)
+<pre>sudo mkdir &lt;path&gt;
+sudo mount -t vboxsf &lt;folder name&gt; &lt;path&gt;</pre>
+</li>
+<li>Option 2: Set up a specific user owned directory
+<pre>mkdir &lt;path&gt;
+sudo mount -t vboxsf -o uid=&lt;uid&gt;,gid=&lt;gid&gt; &lt;folder name&gt; &lt;path&gt;</pre>
+</li>
+</ul>
+Note: once being set up, the owner of the shared folder cannot be changed by:
+<pre>sudo chown &lt;username&gt; &lt;path&gt;</pre>
+</li>
+<li>Optional (do this only if not manually mount), Give permission
+<ul>
+<li>Option 1: <code>sudo nano&nbsp;/etc/group</code> and edit the line starts with <code>vboxsf</code> to&nbsp;<code>vboxsf:x:[number (don't change)]:[username1],[username2],...</code></li>
+<li>
+Option 2:&nbsp;<code>sudo adduser &lt;username&gt; vboxsf</code></li>
+</ul>
+</li>
+</ol>
+<h2>
+Setup Host-only Network</h2>
+Go to <code>File/Preference/Network</code>;<br>
+Click Adds new host-only network, and take a note of the ip address (referred as noted ip/netmask);<br>
+ifconfig is deprecated, use ip addr show or abbreviated as ip a to check network settings;<br>
+Still can use <code>/sbin/ifconfig</code> after <code>sudo apt-get install net-tools</code>;<br>
+Option 1 - peremptory: <code>sudo /sbin/ifconfig eth1 [noted ip] netmask [noted netmask]</code><br>
+Option 2 - permanent: <code>sudo nano /etc/network/interfaces</code><br>
+<pre>auto eth1
+iface eth1 inet static
+# the noted ip address
+address 192.168.55.1
+# the noted netmask
+netmask 255.255.255.0
+# the network of the above ip address you need to calculate
+network 192.168.55.0
+# the broadcast of the above ip address you need to calculate
+broadcast 192.168.55.255
+</pre>

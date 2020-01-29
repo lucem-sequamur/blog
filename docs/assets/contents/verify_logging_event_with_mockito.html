@@ -1,0 +1,54 @@
+For various reasons, the best practice of using a logger is to declare it statically. E.g.<br>
+<pre>private static final Logger LOGGER = LoggerFactory.getLogger(ThisClass.class);</pre>
+When it comes to testing, it becomes tricky because it is static and final. Mockito is not for mocking this type of field. An way is to use something like <a href="https://github.com/powermock/powermock" target="_blank">PowerMock</a>&nbsp;to deal with static &amp; final fields. However, it can cause problems with current Mockito framework, and sometimes it is just simply not a choice. Here is an&nbsp;alternative solution for testing logger behavior in particular.<br>
+<pre>package ca.ljz.mockitotest;
+
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.ArgumentMatcher;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+
+public class LoggedClassTest {
+
+    @Rule
+    public MockitoRule rule = MockitoJUnit.rule();
+
+    @InjectMocks
+    private LoggedClass loggedClass;
+
+    @Mock
+    private Appender&lt;ILoggingEvent&gt; appender;
+
+    @Before
+    public void setup() {
+        ((Logger) getLogger(Logger.ROOT_LOGGER_NAME)).addAppender(appender);
+    }
+
+    @Test
+    public void processNotificationCallbackFind0Registration() {
+        loggedClass.doSomethingWithLogging();
+        verifyIsLogged(appender, "Logged message", 1);
+    }
+
+    private static void verifyIsLogged(Appender&lt;ILoggingEvent&gt; mockAppender, String message, int invocationCount) {
+    verify(mockAppender, times(invocationCount)).doAppend(argThat(new ArgumentMatcher&lt;LoggingEvent&gt;() {
+        @Override
+        public boolean matches(final Object argument) {
+            return ((LoggingEvent) argument).getFormattedMessage().contains(message);
+            }
+        }));
+    }
+}</pre>
