@@ -17,8 +17,8 @@ export class AppComponent implements OnInit {
 
   title = environment.properties.title;
   logo = environment.properties.logo;
-  pinnedArticles: Observable<Article[]>;
-  categories: Observable<Category[]>;
+  pinnedArticles?: Observable<Article[]>;
+  categories?: Observable<Category[]>;
   routerlink = 'cards';
   articleLink = 'detail';
   homeParams = { displayNum: 8 };

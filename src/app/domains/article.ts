@@ -1,10 +1,5 @@
 import { Observable } from 'rxjs';
 
 export class Article {
-  topic: string;
-  tags: string[];
-  date: Date;
-  filepath: string;
-  pin: boolean;
-  content: Observable<string>;
+  constructor(public topic: string, public date: Date, public tags: string[], public filepath: string, public pin: boolean, public content: Observable<string>) { }
 }
