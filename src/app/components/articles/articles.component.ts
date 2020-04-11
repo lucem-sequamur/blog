@@ -9,9 +9,9 @@ import { ArticleService } from '../../services/article.service';
 })
 export class ArticlesComponent implements OnInit {
 
-  articles: Article[];
-  selectedArticle: Article;
-  query: string;
+  articles?: Article[];
+  selectedArticle?: Article;
+  query?: string;
 
   constructor(private articleService: ArticleService) { }
 

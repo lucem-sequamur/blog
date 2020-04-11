@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 })
 export class ArticleComponent implements OnInit, OnDestroy {
   navigationSubscription: Subscription;
-  @Input() article: Article;
+  @Input() article?: Article;
 
   constructor(private route: ActivatedRoute, private articleService: ArticleService, private location: Location, private router: Router) {
     this.navigationSubscription = this.router.events.subscribe((e: any) => {

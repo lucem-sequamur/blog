@@ -1,4 +1,3 @@
 export class Category {
-  name: string;
-  tags: string[];
+  constructor(public name: string, public tags: string[]) { }
 }

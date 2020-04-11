@@ -18,11 +18,11 @@ export class ArticleService {
   getArticles(tags?: string[], number?: number): Observable<Article[]> {
     return this.http.get<Article[]>(this.articleList).pipe(
       map(articles => {
-        if (tags ? tags.length > 0 : false) {
+        if (tags && tags.length > 0) {
           articles = articles.filter(article => article.tags.find(articleTag => tags.find(tag => tag === articleTag)));
         }
         articles.sort((a, b) => a.date > b.date ? -1 : 1);
-        if (number ? number > 0 : false) {
+        if (number && number > 0) {
           articles = articles.slice(0, number);
         }
         articles.forEach(article => article.content = this.loadArticle(article));
@@ -35,7 +35,7 @@ export class ArticleService {
     );
   }
 
-  getArticle(filename: string): Observable<Article> {
+  getArticle(filename: string): Observable<Article | undefined> {
     return this.getArticles().pipe(
       map(articles => articles.find(article => article.filepath === filename))
     );

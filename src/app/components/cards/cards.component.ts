@@ -11,10 +11,10 @@ import { ArticleService } from "../../services/article.service";
 })
 export class CardsComponent implements OnInit, OnDestroy {
   navigationSubscription: Subscription;
-  articles: Observable<Article[]>;
-  @Input() private tags: string[];
-  @Input() displayNum: number;
-  query: string;
+  articles?: Observable<Article[]>;
+  @Input() private tags?: string[];
+  @Input() displayNum?: number;
+  query?: string;
 
   constructor(private route: ActivatedRoute, private articleService: ArticleService, private router: Router) {
     this.navigationSubscription = this.router.events.subscribe((e: any) => {
