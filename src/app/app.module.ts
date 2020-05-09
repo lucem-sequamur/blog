@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { ArticlesComponent } from './components/articles/articles.component';
 import { ArticleComponent } from './components/article/article.component';
 import { CardsComponent } from "./components/cards/cards.component";
 import { SearchArticlesPipe } from './pipes/search-articles.pipe';
@@ -25,7 +24,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 @NgModule({
   declarations: [
     AppComponent,
-    ArticlesComponent,
     ArticleComponent,
     CardsComponent,
     SearchArticlesPipe,
