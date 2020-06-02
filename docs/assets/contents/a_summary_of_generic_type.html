@@ -28,7 +28,7 @@ public class ExampleClass&lt;<strong>T extends Type</strong>&gt; extends SuperCl
 For the <code>ExampleClass&lt;<strong>T</strong> extends <strong>Type</strong>&gt;</code>, <strong><code>T</code></strong> can also extend from a subclass of <strong><code>Type</code></strong> since subclass has an “is” relationship to its parent class.<br>
 <h4>
 super</h4>
-<code>super</code> is opposite to <code>extends</code>, and is commonly used with consumer pattern.<br>
+<code>super</code> is a keyword for <a href="https://docs.oracle.com/javase/tutorial/java/generics/lowerBounded.html">Lower Bounded Wildcards</a>. It is opposite to <code>extends</code>, and is commonly used with consumers.<br>
 Wildcard extends:<br>
 <pre>List&lt;? extends T&gt;
 </pre>
@@ -69,3 +69,17 @@ This is a run time generic type, so that it can't get the actual type. Instead, 
 }
 public class DerivedClass&lt;T&gt; extends SuperClass&lt;T&gt; {}</pre>
 Notice that the above code would run properly in direct calls. In some case, if it is invoked by a container, e.g. JBoss, the container may actually use a proxy class of the DerivedClass, which means there will be one level extra to reach the generic super class. The code would be like this: <code>this.genericType = ((Class) ((ParameterizedType) getClass().getSuperClass().getGenericSuperclass()).getActualTypeArguments()[0]);</code>
+<h4>Example of using <code>super</code></h4>
+<div>In reality, <code>super</code> is much less used than <code>extends</code> in normal development scenarios. This example is originally from Oracle's Java tutorial:</div>
+<pre>public static void main(String[] args) {
+    addNumbers(new ArrayList&lt;Number&gt;());
+}
+
+public static void addNumbers(List&lt;? super Integer&gt; list) {
+    for (int i = 1; i &lt;&eq; 10; i++) {
+        list.add(i);
+    }
+}
+</pre>
+<div>In this example, you create a method <code>addNumbers</code> that takes a <code>List</code> to add integers. However, if you just put <code>Integer</code> as an accepted generic type, the caller in the <code>main</code> method could not pass a <code>Number</code> list in, because although an <code>Integer</code> is a <code>Number</code>, the reverse is not true. In this case, if the <code>addNumber</code> method only allows a <code>List&lt;Integer&gt;</code>, it will not accept a <code>List&lt;Number&gt;</code> even if it can also hold <code>Integer</code>. <code>super</code> was introduced to solve this type of problems. In the example, it makes sure the <code>List</code> passed in is able to hold <code>Integer</code> while the superclasses of <code>Integer</code> are also accepted generic types of the <code>List</code>.
+
